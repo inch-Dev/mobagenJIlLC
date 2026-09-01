@@ -26,7 +26,8 @@ public class BoidManager : MonoBehaviour
 
     void SpawnBoid()
     {
-        GameObject newBoid = GameObject.Instantiate(boidPF);
+        Vector3 randomPos = new Vector3(Random.Range(-15f, 15f), Random.Range(-8f, 8f), 0f);
+        GameObject newBoid = GameObject.Instantiate(boidPF, randomPos, Quaternion.identity);
         boids.Add(newBoid.GetComponent<Boid>());
     }
 }

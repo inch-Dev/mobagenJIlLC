@@ -1,4 +1,7 @@
+using NUnit.Framework;
+using Unity.VisualScripting;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Boid : MonoBehaviour
 {
@@ -8,6 +11,8 @@ public class Boid : MonoBehaviour
     BoidSettings boidSettings;
     LineRenderer lineRenderer;
     CircleCollider2D circleCollider;
+
+    List<Boid> neighbors = new List<Boid>();
 
 	// Start is called once before the first execution of Update after the MonoBehaviour is created
 	void Start()
@@ -23,6 +28,7 @@ public class Boid : MonoBehaviour
     void Update()
     {
         DrawDebug();
+        NeighborhoodRadius();
         Move();
     }
 
@@ -30,22 +36,24 @@ public class Boid : MonoBehaviour
     {
         transform.position += new Vector3(velocity.x * boidSettings.movementSpeed, velocity.y * boidSettings.movementSpeed, 0f);
 
-        Vector2 steerValue = Vector2.zero;
+        Vector3 steerValue = Vector3.zero;
 
         if (boidSettings.alignmentRule)
-            steerValue += Alignment() * boidSettings.alignmentWeight;
+            steerValue += Alignment();
         if (boidSettings.cohesionRule)
-            steerValue += Cohesion() * boidSettings.cohesionWeight;
+            steerValue += Cohesion();
         if (boidSettings.separationRule)
-            steerValue += Separation() * boidSettings.separationWeight;
+            steerValue += Separation();
+
+        transform.position += steerValue;
 
         //Add steervalue to transform.position
     }
 
     void RandomizeMovement()
     {
-        velocity.x = Random.Range(0f, 1f);
-        velocity.y = Random.Range(0f, 1f);
+        velocity.x = Random.Range(-1f, 1f);
+        velocity.y = Random.Range(-1f, 1f);
     }
 
     void NeighborhoodRadius()
@@ -53,23 +61,52 @@ public class Boid : MonoBehaviour
         circleCollider.radius = boidSettings.neighborhoodRadius;
     }
 
-    Vector2 Alignment()
+    Vector3 Alignment()
     {
-        Vector2 steer = Vector2.zero;
+        Vector3 steer = Vector3.zero;
+        Vector3 neighborDirection = Vector3.zero;
+
+
+        //Average direction vector for neighborhood
+        //Add fricition
 
         return steer;
     }
 
-    Vector2 Cohesion()
+    Vector3 Cohesion()
     {
-        Vector2 steer = Vector2.zero;
+        Vector3 steer = Vector3.zero;
+
+        Vector3 neighborCenter = Vector3.zero;
+
+        foreach(Boid boid in neighbors)
+        {
+            neighborCenter += boid.transform.position;
+        }
+
+        neighborCenter /= neighbors.Count;
+
+        Debug.Log($"NeighborCenter:{neighborCenter}");
+
+        steer = transform.position - neighborCenter;
 
         return steer;
     }
 
-    Vector2 Separation()
+    Vector3 Separation()
     {
-        Vector2 steer = Vector2.zero;
+        Vector3 steer = Vector2.zero;
+
+        foreach(Boid boid in neighbors)
+        {
+            Vector3 distance = (transform.position - boid.transform.position);
+            distance = distance.normalized * (boidSettings.separationWeight / distance.magnitude);
+
+            steer += distance;
+        }
+
+        if(neighbors.Count > 0)
+            steer = steer * (1 / neighbors.Count);
 
         return steer;
     }
@@ -122,7 +159,14 @@ public class Boid : MonoBehaviour
 
 	private void OnTriggerEnter2D(Collider2D collision)
 	{
-        Debug.Log("Detected");
+        if (collision.GetComponent<Boid>())
+            neighbors.Add(collision.GetComponent<Boid>());
+	}
+
+	private void OnTriggerExit2D(Collider2D collision)
+	{
+        if (collision.GetComponent<Boid>())
+            neighbors.Remove(collision.GetComponent<Boid>());
 	}
 
 }
