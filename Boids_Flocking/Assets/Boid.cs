@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Boid : MonoBehaviour
 {
@@ -29,15 +30,29 @@ public class Boid : MonoBehaviour
     void Update()
     {
         DrawDebug();
-        NeighborhoodRadius();
+        DetectNeighbors();
         Move();
     }
 
-    void Move()
+    void DetectNeighbors()
     {
-        transform.position += new Vector3(velocity.x * boidSettings.movementSpeed, velocity.y * boidSettings.movementSpeed, 0f);
+        Collider2D[] neighborColliders = Physics2D.OverlapCircleAll(transform.position, boidSettings.neighborhoodRadius);
 
-        Vector3 steerValue = Vector3.zero;
+        neighbors.Clear();
+
+        foreach(Collider2D neighborCollider in neighborColliders)
+        {
+            if (neighborCollider.TryGetComponent(out Boid boid) && neighborCollider != circleCollider)
+                neighbors.Add(boid);
+            Debug.Log(neighbors.Count);
+        }
+    }
+
+	Vector3 steerValue;
+	void Move()
+    {
+        //transform.position += new Vector3(velocity.x * boidSettings.movementSpeed, velocity.y * boidSettings.movementSpeed, 0f) * Time.deltaTime;
+
 
         if (boidSettings.alignmentRule)
             steerValue += Alignment();
@@ -53,14 +68,11 @@ public class Boid : MonoBehaviour
 
     void RandomizeMovement()
     {
-        velocity.x = Random.Range(-1f, 1f);
-        velocity.y = Random.Range(-1f, 1f);
+		steerValue.x = Random.Range(-1f, 1f) * boidSettings.movementSpeed;
+		steerValue.y = Random.Range(-1f, 1f) * boidSettings.movementSpeed;
     }
 
-    void NeighborhoodRadius()
-    {
-        circleCollider.radius = boidSettings.neighborhoodRadius;
-    }
+
 
     Vector3 Alignment()
     {
@@ -75,7 +87,7 @@ public class Boid : MonoBehaviour
         }
 
         if(neighbors.Count > 0)
-            steer *= (1 / neighbors.Count);
+            steer *= (1f / neighbors.Count);
 
         steer = (steer - new Vector3(velocity.x, velocity.y, 0f)) * boidSettings.alignmentWeight;
 
@@ -90,19 +102,20 @@ public class Boid : MonoBehaviour
         if (neighbors.Count == 0)
             return steer;
 
-        foreach(Boid boid in neighbors)
+		// Average out all positions
+		foreach (Boid boid in neighbors)
         {
-            steer += boid.transform.position;
+            steer += boid.transform.position - transform.position;
         }
 
         if (neighbors.Count > 0)
-            steer *= (1 / neighbors.Count);
+            steer *= (1f / neighbors.Count);
 
-        Debug.Log($"Cohesion Force:{steer}");
 
-        steer = (steer - transform.position) * boidSettings.cohesionWeight;
+        steer = boidSettings.cohesionWeight * steer;
+		Debug.Log($"Cohesion Force:{steer}");
 
-        return steer;
+		return steer;
     }
 
     Vector3 Separation()
@@ -171,16 +184,16 @@ public class Boid : MonoBehaviour
 
     void DrawRules() { }
 
-	private void OnTriggerEnter2D(Collider2D collision)
-	{
-        if (collision.GetComponent<Boid>())
-            neighbors.Add(collision.GetComponent<Boid>());
-	}
+	//private void OnTriggerEnter2D(Collider2D collision)
+	//{
+ //       if (collision.GetComponent<Boid>())
+ //           neighbors.Add(collision.GetComponent<Boid>());
+	//}
 
-	private void OnTriggerExit2D(Collider2D collision)
-	{
-        if (collision.GetComponent<Boid>())
-            neighbors.Remove(collision.GetComponent<Boid>());
-	}
+	//private void OnTriggerExit2D(Collider2D collision)
+	//{
+ //       if (collision.GetComponent<Boid>())
+ //           neighbors.Remove(collision.GetComponent<Boid>());
+	//}
 
 }
