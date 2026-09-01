@@ -430,7 +430,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: movementSpeed
-      value: 0.015
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: cohesionWeight
@@ -442,7 +442,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: separationWeight
-      value: 0.01
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: neighborhoodRadius

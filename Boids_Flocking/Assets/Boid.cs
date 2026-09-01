@@ -45,7 +45,7 @@ public class Boid : MonoBehaviour
         if (boidSettings.separationRule)
             steerValue += Separation();
 
-        transform.position += steerValue;
+        transform.position += steerValue * Time.deltaTime;
 
         //Add steervalue to transform.position
     }
