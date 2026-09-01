@@ -7,6 +7,7 @@ public class Boid : MonoBehaviour
 {
 
     Vector2 velocity;
+    public Vector2 GetVelocity(){ return velocity; }
 
     BoidSettings boidSettings;
     LineRenderer lineRenderer;
@@ -64,12 +65,21 @@ public class Boid : MonoBehaviour
     Vector3 Alignment()
     {
         Vector3 steer = Vector3.zero;
-        Vector3 neighborDirection = Vector3.zero;
 
+        if (neighbors.Count == 0)
+            return steer;
 
-        //Average direction vector for neighborhood
-        //Add fricition
+        foreach(Boid neighbor in neighbors)
+        {
+            steer += new Vector3(neighbor.GetVelocity().x, neighbor.GetVelocity().y, 0f);
+        }
 
+        if(neighbors.Count > 0)
+            steer *= (1 / neighbors.Count);
+
+        steer = (steer - new Vector3(velocity.x, velocity.y, 0f)) * boidSettings.alignmentWeight;
+
+        Debug.Log($"Alignment Force:{steer}");
         return steer;
     }
 
@@ -77,18 +87,20 @@ public class Boid : MonoBehaviour
     {
         Vector3 steer = Vector3.zero;
 
-        Vector3 neighborCenter = Vector3.zero;
+        if (neighbors.Count == 0)
+            return steer;
 
         foreach(Boid boid in neighbors)
         {
-            neighborCenter += boid.transform.position;
+            steer += boid.transform.position;
         }
 
-        neighborCenter /= neighbors.Count;
+        if (neighbors.Count > 0)
+            steer *= (1 / neighbors.Count);
 
-        Debug.Log($"NeighborCenter:{neighborCenter}");
+        Debug.Log($"Cohesion Force:{steer}");
 
-        steer = transform.position - neighborCenter;
+        steer = (steer - transform.position) * boidSettings.cohesionWeight;
 
         return steer;
     }
@@ -100,13 +112,15 @@ public class Boid : MonoBehaviour
         foreach(Boid boid in neighbors)
         {
             Vector3 distance = (transform.position - boid.transform.position);
-            distance = distance.normalized * (boidSettings.separationWeight / distance.magnitude);
+            distance = distance.normalized * (boidSettings.targetSeparation / distance.magnitude);
 
             steer += distance;
         }
 
         if(neighbors.Count > 0)
             steer = steer * (1 / neighbors.Count);
+
+        steer *= boidSettings.separationWeight;
 
         return steer;
     }
