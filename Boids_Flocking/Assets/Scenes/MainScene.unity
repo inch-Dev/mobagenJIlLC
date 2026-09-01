@@ -200,7 +200,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -425,20 +425,24 @@ PrefabInstance:
       value: 250
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
+      propertyPath: showRadius
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: cohesionRule
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: alignmentRule
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: movementSpeed
-      value: 3
+      value: 4.58
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: cohesionWeight
-      value: 0.75
+      value: 14.9
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: separationRule
@@ -446,19 +450,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: alignmentWeight
-      value: 3
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
+      propertyPath: maxAcceleration
+      value: 45.22
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: separationWeight
-      value: 0.75
+      value: 20.1
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: targetSeparation
-      value: 0.3
+      value: 1.79
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: neighborhoodRadius
-      value: 1
+      value: 2.62
       objectReference: {fileID: 0}
     - target: {fileID: 1635856128264965129, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: m_LocalPosition.x

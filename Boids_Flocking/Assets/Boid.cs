@@ -6,9 +6,9 @@ using System.Linq;
 
 public class Boid : MonoBehaviour
 {
-
-    Vector2 velocity;
-    public Vector2 GetVelocity(){ return velocity; }
+    Vector3 velocity;
+    Vector3 acceleration;
+    public Vector3 GetVelocity(){ return velocity; }
 
     BoidSettings boidSettings;
     LineRenderer lineRenderer;
@@ -44,35 +44,49 @@ public class Boid : MonoBehaviour
         {
             if (neighborCollider.TryGetComponent(out Boid boid) && neighborCollider != circleCollider)
                 neighbors.Add(boid);
-            Debug.Log(neighbors.Count);
+            //Debug.Log(neighbors.Count);
         }
     }
 
-	Vector3 steerValue;
 	void Move()
     {
         //transform.position += new Vector3(velocity.x * boidSettings.movementSpeed, velocity.y * boidSettings.movementSpeed, 0f) * Time.deltaTime;
 
+        
 
         if (boidSettings.alignmentRule)
-            steerValue += Alignment();
+            acceleration += Alignment();
         if (boidSettings.cohesionRule)
-            steerValue += Cohesion();
+            acceleration += Cohesion();
         if (boidSettings.separationRule)
-            steerValue += Separation();
+            acceleration += Separation();
 
-        transform.position += steerValue * Time.deltaTime;
+        
 
-        //Add steervalue to transform.position
+        velocity += acceleration * Time.deltaTime;
+        velocity = Vector3.ClampMagnitude(velocity, boidSettings.maxAcceleration);
+
+        transform.position += velocity * Time.deltaTime;
+
+        acceleration = Vector3.zero;
+
+        //Look In Direction
+        if (velocity != Vector3.zero)
+        {
+            Debug.Log($"Velocity:{velocity}");
+            transform.up = velocity.normalized;
+        }
     }
 
     void RandomizeMovement()
     {
-		steerValue.x = Random.Range(-1f, 1f) * boidSettings.movementSpeed;
-		steerValue.y = Random.Range(-1f, 1f) * boidSettings.movementSpeed;
+        velocity = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f).normalized * boidSettings.movementSpeed;
     }
 
+    void LookWhereGoing()
+    {
 
+    }
 
     Vector3 Alignment()
     {
@@ -91,7 +105,7 @@ public class Boid : MonoBehaviour
 
         steer = (steer - new Vector3(velocity.x, velocity.y, 0f)) * boidSettings.alignmentWeight;
 
-        Debug.Log($"Alignment Force:{steer}");
+        //Debug.Log($"Alignment Force:{steer}");
         return steer;
     }
 
@@ -113,14 +127,14 @@ public class Boid : MonoBehaviour
 
 
         steer = boidSettings.cohesionWeight * steer;
-		Debug.Log($"Cohesion Force:{steer}");
+		//Debug.Log($"Cohesion Force:{steer}");
 
 		return steer;
     }
 
     Vector3 Separation()
     {
-        Vector3 steer = Vector2.zero;
+        Vector3 steer = Vector3.zero;
 
         foreach(Boid boid in neighbors)
         {
@@ -131,7 +145,7 @@ public class Boid : MonoBehaviour
         }
 
         if(neighbors.Count > 0)
-            steer = steer * (1 / neighbors.Count);
+            steer = steer * (1f / neighbors.Count);
 
         steer *= boidSettings.separationWeight;
 

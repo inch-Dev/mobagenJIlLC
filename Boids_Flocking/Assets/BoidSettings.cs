@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BoidSettings : MonoBehaviour
@@ -22,6 +23,7 @@ public class BoidSettings : MonoBehaviour
 
     public float movementSpeed = 1f;
     public float maxAcceleration = 1f;
+    public float maxRotation = 1f;
 
 
 	private void Start()
