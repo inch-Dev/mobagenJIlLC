@@ -3,15 +3,15 @@ using UnityEngine;
 public class BoidSettings : MonoBehaviour
 {
     [HideInInspector] public static BoidSettings instance;
-    int numBoids;
+    public int numBoids;
     public float neighborhoodRadius;
 
     public bool showAcceleration;
     public bool showRadius;
     public bool showRules;
 
-    public bool seperationRule;
-    public float seperationWeight;
+    public bool separationRule;
+    public float separationWeight;
     public float targetSeparation;
 
     public bool cohesionRule;
@@ -19,6 +19,10 @@ public class BoidSettings : MonoBehaviour
 
     public bool alignmentRule;
     public float alignmentWeight;
+
+    public float movementSpeed = 1f;
+    public float maxAcceleration = 1f;
+
 
 	private void Start()
 	{
