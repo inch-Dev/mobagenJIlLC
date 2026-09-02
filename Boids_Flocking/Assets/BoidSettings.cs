@@ -25,6 +25,12 @@ public class BoidSettings : MonoBehaviour
     public float maxAcceleration = 1f;
     public float maxRotation = 1f;
 
+    public bool collisonAvoidance;
+
+    public float avoidanceWeight;
+
+    public float maxConstraintRadius;
+
 
 	private void Start()
 	{

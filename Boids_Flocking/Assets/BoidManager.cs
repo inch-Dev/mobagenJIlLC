@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 public class BoidManager : MonoBehaviour
 {
     [SerializeField] BoidSettings boidSettings;
@@ -27,7 +26,7 @@ public class BoidManager : MonoBehaviour
 
     void SpawnBoid()
     {
-        Vector3 randomPos = new Vector3(Random.Range(-15f, 15f), Random.Range(-8f, 8f), 0f);
+        Vector3 randomPos = new Vector3(Random.Range(-10f, 10f), Random.Range(-5f, 5f), 0f);
         GameObject newBoid = GameObject.Instantiate(boidPF, randomPos, Quaternion.identity);
         newBoid.GetComponentInChildren<SpriteRenderer>().color = Random.ColorHSV(0f, 1f, 0f, 1f, 1f,1f, 1f, 1f);
         boids.Add(newBoid.GetComponent<Boid>());

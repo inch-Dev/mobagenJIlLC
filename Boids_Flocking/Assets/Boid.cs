@@ -15,6 +15,7 @@ public class Boid : MonoBehaviour
     CircleCollider2D circleCollider;
 
     List<Boid> neighbors = new List<Boid>();
+    List<GameObject> obstacles = new List<GameObject>();
 
 	// Start is called once before the first execution of Update after the MonoBehaviour is created
 	void Start()
@@ -26,42 +27,94 @@ public class Boid : MonoBehaviour
         RandomizeMovement();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        DrawDebug();
-        DetectNeighbors();
-        Move();
-    }
+	private void FixedUpdate()
+	{
+		DrawDebug();
+		DetectNeighbors();
+		Move();
+        //WrapMovement();
+	}
 
-    void DetectNeighbors()
+	void DetectNeighbors()
     {
         Collider2D[] neighborColliders = Physics2D.OverlapCircleAll(transform.position, boidSettings.neighborhoodRadius);
 
+        obstacles.Clear();
         neighbors.Clear();
 
         foreach(Collider2D neighborCollider in neighborColliders)
         {
             if (neighborCollider.TryGetComponent(out Boid boid) && neighborCollider != circleCollider)
                 neighbors.Add(boid);
+            else if (boidSettings.collisonAvoidance &&  neighborCollider != GetComponent<CircleCollider2D>())
+                obstacles.Add(neighborCollider.gameObject);
             //Debug.Log(neighbors.Count);
         }
+
+        Debug.Log($"Obstacles:{obstacles.Count}");
     }
+
+    Vector3 EdgeAvoidance()
+    {
+        if(transform.position.magnitude > boidSettings.maxConstraintRadius - boidSettings.neighborhoodRadius)
+        {
+            float distance = boidSettings.maxConstraintRadius - transform.position.magnitude;
+
+            float strength = 1f / (distance * distance);
+
+            Vector3 avoidDirection = -transform.position.normalized;
+
+            return avoidDirection * strength * boidSettings.avoidanceWeight;
+        }
+
+        return Vector3.zero;
+    }
+
+    void WrapMovement()
+    {
+        float newX = transform.position.x;
+        float newY = transform.position.y;
+
+
+        Vector3 screenPos = Camera.main.WorldToViewportPoint(GetComponentInChildren<SpriteRenderer>().bounds.center);
+        Vector3 screenExtents = Camera.main.WorldToViewportPoint(GetComponentInChildren<SpriteRenderer>().bounds.extents);
+
+        if(screenPos.x > 1f + screenExtents.x)
+        {
+            newX = -screenExtents.x;
+            newY = screenPos.y;
+        }
+
+        if(screenPos.x < 0f - screenExtents.x)
+        {
+            newX= 1f + screenExtents.x;
+            newY = screenPos.y;
+        }
+
+        if(screenPos.y > 1f + screenExtents.y)
+        {
+            newY = -screenExtents.y;
+            newX = screenPos.x;
+        }
+
+        if(screenPos.y < 0f - screenExtents.y)
+        {
+            newY = 1f + screenExtents.y;
+            newX = screenPos.x;
+        }
+
+		transform.position = Camera.main.ViewportToWorldPoint(new Vector3(newX, newY, 0));
+	}
 
 	void Move()
     {
-        //transform.position += new Vector3(velocity.x * boidSettings.movementSpeed, velocity.y * boidSettings.movementSpeed, 0f) * Time.deltaTime;
-
-        
-
         if (boidSettings.alignmentRule)
             acceleration += Alignment();
         if (boidSettings.cohesionRule)
             acceleration += Cohesion();
         if (boidSettings.separationRule)
             acceleration += Separation();
-
-        
+        //acceleration += EdgeAvoidance();
 
         velocity += acceleration * Time.deltaTime;
         velocity = Vector3.ClampMagnitude(velocity, boidSettings.maxAcceleration);
@@ -73,7 +126,7 @@ public class Boid : MonoBehaviour
         //Look In Direction
         if (velocity != Vector3.zero)
         {
-            Debug.Log($"Velocity:{velocity}");
+            //Debug.Log($"Velocity:{velocity}");
             transform.up = velocity.normalized;
         }
     }
@@ -81,11 +134,6 @@ public class Boid : MonoBehaviour
     void RandomizeMovement()
     {
         velocity = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f).normalized * boidSettings.movementSpeed;
-    }
-
-    void LookWhereGoing()
-    {
-
     }
 
     Vector3 Alignment()
@@ -105,7 +153,6 @@ public class Boid : MonoBehaviour
 
         steer = (steer - new Vector3(velocity.x, velocity.y, 0f)) * boidSettings.alignmentWeight;
 
-        //Debug.Log($"Alignment Force:{steer}");
         return steer;
     }
 
@@ -136,18 +183,45 @@ public class Boid : MonoBehaviour
     {
         Vector3 steer = Vector3.zero;
 
-        foreach(Boid boid in neighbors)
-        {
-            Vector3 distance = (transform.position - boid.transform.position);
-            distance = distance.normalized * (boidSettings.targetSeparation / distance.magnitude);
 
-            steer += distance;
+        if (boidSettings.collisonAvoidance)
+        {
+            foreach (GameObject obstacle in obstacles)
+            {
+                Vector3 distance = (transform.position - obstacle.transform.position);
+                distance = distance.normalized * (boidSettings.targetSeparation / distance.magnitude);
+
+                steer += distance;
+            }
+
+			foreach (Boid boid in neighbors)
+			{
+				Vector3 distance = (transform.position - boid.transform.position);
+				distance = distance.normalized * (boidSettings.targetSeparation / distance.magnitude);
+
+				steer += distance;
+			}
+
+			if (obstacles.Count > 0)
+                steer = steer * (1f / obstacles.Count + neighbors.Count);
         }
 
-        if(neighbors.Count > 0)
-            steer = steer * (1f / neighbors.Count);
 
-        steer *= boidSettings.separationWeight;
+        else
+        {
+            foreach (Boid boid in neighbors)
+            {
+                Vector3 distance = (transform.position - boid.transform.position);
+                distance = distance.normalized * (boidSettings.targetSeparation / distance.magnitude);
+
+                steer += distance;
+            }
+
+            if (neighbors.Count > 0)
+                steer = steer * (1f / neighbors.Count);
+
+            steer *= boidSettings.separationWeight;
+        }
 
         return steer;
     }
