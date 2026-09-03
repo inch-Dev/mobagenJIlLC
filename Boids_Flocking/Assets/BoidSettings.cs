@@ -5,11 +5,15 @@ public class BoidSettings : MonoBehaviour
 {
     [HideInInspector] public static BoidSettings instance;
     public int numBoids = 125;
+
+    public void SetNumBoids(int newNum){ numBoids = newNum; }
     public float neighborhoodRadius = 2;
+    public void SetNeighborhoodRadius(float newRadius){  neighborhoodRadius = newRadius; }
 
     [Header("Debug Drawing")]
 
     public bool showAcceleration = false;
+
     public bool showRadius = false;
     public bool showRules = false;
 

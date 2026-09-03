@@ -13,9 +13,13 @@ public class BoidUI : MonoBehaviour
 
     [Header("Rules")]
     [SerializeField] Toggle separation;
+    [SerializeField] Slider separationWeight;
+    [SerializeField] Slider separationDistance;
     [SerializeField] Toggle cohesion;
+    [SerializeField] Slider cohesionWeight;
     [SerializeField] Toggle alignment;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField] Slider alignmentWeight;
+
     void Start()
     {
         
