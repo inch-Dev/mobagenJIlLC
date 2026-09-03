@@ -26,7 +26,7 @@ public class BoidManager : MonoBehaviour
 
     void SpawnBoid()
     {
-        Vector3 randomPos = new Vector3(Random.Range(-10f, 10f), Random.Range(-5f, 5f), 0f);
+        Vector3 randomPos = new Vector3(Random.Range(boidSettings.horizontalMargins.x, boidSettings.horizontalMargins.y), Random.Range(boidSettings.verticalMargins.x, boidSettings.verticalMargins.y), 0f);
         GameObject newBoid = GameObject.Instantiate(boidPF, randomPos, Quaternion.identity);
         newBoid.GetComponentInChildren<SpriteRenderer>().color = Random.ColorHSV(0f, 1f, 0f, 1f, 1f,1f, 1f, 1f);
         boids.Add(newBoid.GetComponent<Boid>());

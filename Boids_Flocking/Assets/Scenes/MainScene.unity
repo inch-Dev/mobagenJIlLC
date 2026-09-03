@@ -430,11 +430,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: showRadius
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: cohesionRule
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: alignmentRule
@@ -442,19 +442,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: movementSpeed
-      value: 5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: cohesionWeight
-      value: 0.8
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: separationRule
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: alignmentWeight
-      value: 0.2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: avoidanceWeight
@@ -462,15 +462,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: maxAcceleration
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: separationWeight
-      value: 20
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: targetSeparation
-      value: 1
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: collisonAvoidance

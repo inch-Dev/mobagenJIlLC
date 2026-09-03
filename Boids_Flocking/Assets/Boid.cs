@@ -94,6 +94,8 @@ public class Boid : MonoBehaviour
 
         transform.position += velocity * Time.fixedDeltaTime;
 
+        Debug.Log($"Velocity:{velocity},Position:{transform.position}");
+
         acceleration = Vector3.zero;
 
         //Look In Direction
@@ -140,7 +142,7 @@ public class Boid : MonoBehaviour
 		// Average out all positions
 		foreach (Boid boid in neighbors)
         {
-            steer += boid.transform.position;
+            steer += boid.transform.position - transform.position;
         }
 
         if (neighbors.Count > 0)
@@ -148,7 +150,6 @@ public class Boid : MonoBehaviour
 
 
         steer = steer.normalized;
-		//Debug.Log($"Cohesion Force:{steer}");
 
 		return steer;
     }
@@ -169,9 +170,6 @@ public class Boid : MonoBehaviour
                 steer += distance / magnitude;
             }
 		}
-
-		//if (neighbors.Count > 0)
-		//	steer /= neighbors.Count;
 
 		return steer;
     }
@@ -199,6 +197,7 @@ public class Boid : MonoBehaviour
 
     void DrawRadius()
     {
+        //Toggle off lineRenderer if no debug
         float lineWidth = .1f;
         int segments = 360;
         lineRenderer.useWorldSpace = false;
@@ -219,19 +218,5 @@ public class Boid : MonoBehaviour
 
 
     }
-
-    void DrawRules() { }
-
-	//private void OnTriggerEnter2D(Collider2D collision)
-	//{
- //       if (collision.GetComponent<Boid>())
- //           neighbors.Add(collision.GetComponent<Boid>());
-	//}
-
-	//private void OnTriggerExit2D(Collider2D collision)
-	//{
- //       if (collision.GetComponent<Boid>())
- //           neighbors.Remove(collision.GetComponent<Boid>());
-	//}
 
 }
