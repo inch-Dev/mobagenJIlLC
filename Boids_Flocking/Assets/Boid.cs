@@ -77,66 +77,14 @@ public class Boid : MonoBehaviour
 		}
 	}
 
-    Vector3 EdgeAvoidance()
-    {
-        if(transform.position.magnitude > boidSettings.maxConstraintRadius - boidSettings.neighborhoodRadius)
-        {
-            float distance = boidSettings.maxConstraintRadius - transform.position.magnitude;
-
-            float strength = 1f / (distance * distance);
-
-            Vector3 avoidDirection = -transform.position.normalized;
-
-            return avoidDirection * strength * boidSettings.avoidanceWeight;
-        }
-
-        return Vector3.zero;
-    }
-
-    void WrapMovement()
-    {
-        float newX = transform.position.x;
-        float newY = transform.position.y;
-
-
-        Vector3 screenPos = Camera.main.WorldToViewportPoint(GetComponentInChildren<SpriteRenderer>().bounds.center);
-        Vector3 screenExtents = Camera.main.WorldToViewportPoint(GetComponentInChildren<SpriteRenderer>().bounds.extents);
-
-        if(screenPos.x > 1f + screenExtents.x)
-        {
-            newX = -screenExtents.x;
-            newY = screenPos.y;
-        }
-
-        if(screenPos.x < 0f - screenExtents.x)
-        {
-            newX= 1f + screenExtents.x;
-            newY = screenPos.y;
-        }
-
-        if(screenPos.y > 1f + screenExtents.y)
-        {
-            newY = -screenExtents.y;
-            newX = screenPos.x;
-        }
-
-        if(screenPos.y < 0f - screenExtents.y)
-        {
-            newY = 1f + screenExtents.y;
-            newX = screenPos.x;
-        }
-
-		transform.position = Camera.main.ViewportToWorldPoint(new Vector3(newX, newY, 0));
-	}
-
 	void Move()
     {
         if (boidSettings.alignmentRule)
-            acceleration += Alignment();
+            acceleration += Alignment() * boidSettings.alignmentWeight;
         if (boidSettings.cohesionRule)
-            acceleration += Cohesion();
+            acceleration += Cohesion() * boidSettings.cohesionWeight;
         if (boidSettings.separationRule)
-            acceleration += Separation();
+            acceleration += Separation() * boidSettings.separationWeight;
         //acceleration += EdgeAvoidance();
 
         Debug.Log($"Alignment:{Alignment()}, Cohesion:{Cohesion()}, Separation:{Separation()}");
@@ -196,10 +144,10 @@ public class Boid : MonoBehaviour
         }
 
         if (neighbors.Count > 0)
-            steer *= (1f / neighbors.Count);
+            steer /= neighbors.Count;
 
 
-        steer = boidSettings.cohesionWeight * (steer - transform.position);
+        steer = steer.normalized;
 		//Debug.Log($"Cohesion Force:{steer}");
 
 		return steer;
@@ -211,18 +159,19 @@ public class Boid : MonoBehaviour
 
 		foreach (Boid boid in neighbors)
 		{
-			Vector3 offset = (transform.position - boid.transform.position);
 
-            float distance = offset.magnitude;
+            Vector3 direction = transform.position - boid.transform.position;
+            float magnitude = direction.magnitude;
+            Vector3 distance = direction / magnitude;
 
-            if(distance > 0f && distance < boidSettings.targetSeparation)
-                steer += offset.normalized / distance;
+            if(Vector3.Distance(transform.position, boid.transform.position) < boidSettings.targetSeparation && Vector3.Distance(transform.position, boid.transform.position) > 0f)
+            {
+                steer += distance / magnitude;
+            }
 		}
 
-		if (neighbors.Count > 0)
-			steer = steer * (1f / neighbors.Count);
-
-		steer *= boidSettings.separationWeight;
+		//if (neighbors.Count > 0)
+		//	steer /= neighbors.Count;
 
 		return steer;
     }
