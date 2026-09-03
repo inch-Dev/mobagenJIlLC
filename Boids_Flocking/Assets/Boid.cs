@@ -31,8 +31,8 @@ public class Boid : MonoBehaviour
 	{
 		DrawDebug();
 		DetectNeighbors();
+		MarginClip();
 		Move();
-        //WrapMovement();
 	}
 
 	void DetectNeighbors()
@@ -53,6 +53,29 @@ public class Boid : MonoBehaviour
 
         Debug.Log($"Obstacles:{obstacles.Count}");
     }
+
+    void MarginClip()
+    {
+        if(transform.position.x < boidSettings.horizontalMargins.x)
+        {
+            transform.position = new Vector3(boidSettings.horizontalMargins.y, transform.position.y, 0);
+        }
+
+        if(transform.position.x > boidSettings.horizontalMargins.y)
+        {
+			transform.position = new Vector3(boidSettings.horizontalMargins.x, transform.position.y, 0);
+		}
+
+		if (transform.position.y < boidSettings.verticalMargins.x)
+        {
+			transform.position = new Vector3(transform.position.x, boidSettings.verticalMargins.y, 0);
+		}
+
+		if (transform.position.y > boidSettings.verticalMargins.y)
+        {
+			transform.position = new Vector3(transform.position.x, boidSettings.verticalMargins.x, 0);
+		}
+	}
 
     Vector3 EdgeAvoidance()
     {
@@ -116,10 +139,12 @@ public class Boid : MonoBehaviour
             acceleration += Separation();
         //acceleration += EdgeAvoidance();
 
-        velocity += acceleration * Time.deltaTime;
+        Debug.Log($"Alignment:{Alignment()}, Cohesion:{Cohesion()}, Separation:{Separation()}");
+
+        velocity += acceleration * Time.fixedDeltaTime;
         velocity = Vector3.ClampMagnitude(velocity, boidSettings.maxAcceleration);
 
-        transform.position += velocity * Time.deltaTime;
+        transform.position += velocity * Time.fixedDeltaTime;
 
         acceleration = Vector3.zero;
 
@@ -145,14 +170,15 @@ public class Boid : MonoBehaviour
 
         foreach(Boid neighbor in neighbors)
         {
-            steer += new Vector3(neighbor.GetVelocity().x, neighbor.GetVelocity().y, 0f);
+            steer += neighbor.GetVelocity();
         }
 
-        if(neighbors.Count > 0)
-            steer *= (1f / neighbors.Count);
+        if (neighbors.Count > 0)
+        {
+            steer /= neighbors.Count;
+        }
 
-        steer = (steer - new Vector3(velocity.x, velocity.y, 0f)) * boidSettings.alignmentWeight;
-
+        steer = (steer - GetVelocity()) * boidSettings.alignmentWeight;
         return steer;
     }
 
@@ -166,14 +192,14 @@ public class Boid : MonoBehaviour
 		// Average out all positions
 		foreach (Boid boid in neighbors)
         {
-            steer += boid.transform.position - transform.position;
+            steer += boid.transform.position;
         }
 
         if (neighbors.Count > 0)
             steer *= (1f / neighbors.Count);
 
 
-        steer = boidSettings.cohesionWeight * steer;
+        steer = boidSettings.cohesionWeight * (steer - transform.position);
 		//Debug.Log($"Cohesion Force:{steer}");
 
 		return steer;
@@ -183,47 +209,22 @@ public class Boid : MonoBehaviour
     {
         Vector3 steer = Vector3.zero;
 
+		foreach (Boid boid in neighbors)
+		{
+			Vector3 offset = (transform.position - boid.transform.position);
 
-        if (boidSettings.collisonAvoidance)
-        {
-            foreach (GameObject obstacle in obstacles)
-            {
-                Vector3 distance = (transform.position - obstacle.transform.position);
-                distance = distance.normalized * (boidSettings.targetSeparation / distance.magnitude);
+            float distance = offset.magnitude;
 
-                steer += distance;
-            }
+            if(distance > 0f && distance < boidSettings.targetSeparation)
+                steer += offset.normalized / distance;
+		}
 
-			foreach (Boid boid in neighbors)
-			{
-				Vector3 distance = (transform.position - boid.transform.position);
-				distance = distance.normalized * (boidSettings.targetSeparation / distance.magnitude);
+		if (neighbors.Count > 0)
+			steer = steer * (1f / neighbors.Count);
 
-				steer += distance;
-			}
+		steer *= boidSettings.separationWeight;
 
-			if (obstacles.Count > 0)
-                steer = steer * (1f / obstacles.Count + neighbors.Count);
-        }
-
-
-        else
-        {
-            foreach (Boid boid in neighbors)
-            {
-                Vector3 distance = (transform.position - boid.transform.position);
-                distance = distance.normalized * (boidSettings.targetSeparation / distance.magnitude);
-
-                steer += distance;
-            }
-
-            if (neighbors.Count > 0)
-                steer = steer * (1f / neighbors.Count);
-
-            steer *= boidSettings.separationWeight;
-        }
-
-        return steer;
+		return steer;
     }
 
 

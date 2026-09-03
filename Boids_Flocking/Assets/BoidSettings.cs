@@ -31,6 +31,12 @@ public class BoidSettings : MonoBehaviour
 
     public float maxConstraintRadius;
 
+    public float turnForce;
+
+    public Vector2 horizontalMargins;
+
+    public Vector2 verticalMargins;
+
 
 	private void Start()
 	{
