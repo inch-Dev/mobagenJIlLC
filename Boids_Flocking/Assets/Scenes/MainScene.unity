@@ -486,7 +486,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: neighborhoodRadius
-      value: 5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 52977187852054279, guid: 72a2a5b8540b308488239896cd38b3e1, type: 3}
       propertyPath: horizontalMargins.x
