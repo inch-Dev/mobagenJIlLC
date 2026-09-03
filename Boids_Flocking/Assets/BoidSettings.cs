@@ -4,38 +4,38 @@ using UnityEngine;
 public class BoidSettings : MonoBehaviour
 {
     [HideInInspector] public static BoidSettings instance;
-    public int numBoids;
-    public float neighborhoodRadius;
+    public int numBoids = 125;
+    public float neighborhoodRadius = 2;
 
-    public bool showAcceleration;
-    public bool showRadius;
-    public bool showRules;
+    [Header("Debug Drawing")]
 
-    public bool separationRule;
-    public float separationWeight;
-    public float targetSeparation;
+    public bool showAcceleration = false;
+    public bool showRadius = false;
+    public bool showRules = false;
 
-    public bool cohesionRule;
-    public float cohesionWeight;
+    [Header("Separation")]
+    public bool separationRule = false;
+    public float separationWeight = 25f;
+    public float targetSeparation = 0.5f;
 
-    public bool alignmentRule;
+    [Header("Cohesion")]
+    public bool cohesionRule = false;
+    public float cohesionWeight = 20f;
+
+    [Header("Alignment")]
+    public bool alignmentRule = false;
     public float alignmentWeight;
 
+    [Header("Movement Values")]
     public float movementSpeed = 1f;
     public float maxAcceleration = 1f;
-    public float maxRotation = 1f;
 
-    public bool collisonAvoidance;
 
-    public float avoidanceWeight;
+    [Header("Position Clamping")]
 
-    public float maxConstraintRadius;
+    public Vector2 horizontalMargins = new Vector2(-20f,20f);
 
-    public float turnForce;
-
-    public Vector2 horizontalMargins;
-
-    public Vector2 verticalMargins;
+    public Vector2 verticalMargins = new Vector2(-8f, 8f);
 
 
 	private void Start()
@@ -43,4 +43,9 @@ public class BoidSettings : MonoBehaviour
 		if(instance == null)
             instance = this;
 	}
+
+    public void  ResetBoidDefaultvalues()
+    {
+
+    }
 }

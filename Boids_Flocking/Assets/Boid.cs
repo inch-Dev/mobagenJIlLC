@@ -46,8 +46,6 @@ public class Boid : MonoBehaviour
         {
             if (neighborCollider.TryGetComponent(out Boid boid) && neighborCollider != circleCollider)
                 neighbors.Add(boid);
-            else if (boidSettings.collisonAvoidance &&  neighborCollider != GetComponent<CircleCollider2D>())
-                obstacles.Add(neighborCollider.gameObject);
             //Debug.Log(neighbors.Count);
         }
 

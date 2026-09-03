@@ -31,4 +31,11 @@ public class BoidManager : MonoBehaviour
         newBoid.GetComponentInChildren<SpriteRenderer>().color = Random.ColorHSV(0f, 1f, 0f, 1f, 1f,1f, 1f, 1f);
         boids.Add(newBoid.GetComponent<Boid>());
     }
+
+    void RandomizeBoids()
+    {
+        //Randomize Positions
+
+        //Randomize velocity
+    }
 }
