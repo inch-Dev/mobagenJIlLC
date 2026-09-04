@@ -81,6 +81,19 @@ public class Boid : MonoBehaviour
 		}
 	}
 
+    Vector3 GetAcceleration()
+    {
+        Vector3 acceleration = Vector3.zero;
+		if (boidSettings.alignmentRule)
+			acceleration += Alignment() * boidSettings.alignmentWeight;
+		if (boidSettings.cohesionRule)
+			acceleration += Cohesion() * boidSettings.cohesionWeight;
+		if (boidSettings.separationRule)
+			acceleration += Separation() * boidSettings.separationWeight;
+
+        return acceleration;
+	}
+
 	void Move()
     {
         if (boidSettings.alignmentRule)
@@ -190,14 +203,34 @@ public class Boid : MonoBehaviour
 
     void DrawAcceleration(bool showAccel)
     {
-        
-    }
+        if(!showAccel)
+        {
+            accelRenderer.positionCount = 0;
+            return;
+        }
+
+		float lineWidth = .1f;
+		accelRenderer.useWorldSpace = false;
+		accelRenderer.startWidth = lineWidth;
+	    accelRenderer.endWidth = lineWidth;
+
+		int segments = 2;
+		accelRenderer.positionCount = segments;
+		Vector3[] points = new Vector3[segments];
+
+
+        points[0] = Vector3.zero;
+		points[1] = GetAcceleration().normalized;
+
+		accelRenderer.SetPositions(points);
+
+	}
 
     void DrawRadius(bool showRadius)
     {
         if(!showRadius)
         {
-            lineRenderer.SetPositions(null);
+            radiusRenderer.positionCount = 0;
             return;
         }
         //Toggle off lineRenderer if no debug
@@ -224,6 +257,14 @@ public class Boid : MonoBehaviour
 
     void DrawRules(bool showRules)
     {
+        if(!showRules)
+        {
+            separationRenderer.positionCount = 0;
+            cohesionRenderer.positionCount = 0;
+            alignmentRenderer.positionCount = 0;
+            return;
+        }
+
 		float lineWidth = .1f;
 
 		if (boidSettings.separationRule)
@@ -233,13 +274,19 @@ public class Boid : MonoBehaviour
             separationRenderer.endWidth = lineWidth;
 
             int segments = 2;
+            separationRenderer.positionCount = segments;
             Vector3[] points = new Vector3[segments];
 
 
-			points[0] = transform.position;
-            points[1] = transform.position + Separation();
+			points[0] = Vector3.zero;
+            points[1] = Separation().normalized;
 
             separationRenderer.SetPositions(points);
+        }
+
+        else
+        {
+            separationRenderer.positionCount = 0;
         }
 
 
@@ -250,14 +297,20 @@ public class Boid : MonoBehaviour
 			cohesionRenderer.endWidth = lineWidth;
 
 			int segments = 2;
+			cohesionRenderer.positionCount = segments;
 			Vector3[] points = new Vector3[segments];
 
 
-			points[0] = transform.position;
-			points[1] = transform.position + Cohesion();
+			points[0] = Vector3.zero;
+			points[1] = Cohesion().normalized;
 
 			cohesionRenderer.SetPositions(points);
 		}
+
+        else
+        {
+            cohesionRenderer.positionCount = 0;
+        }
 
         if(boidSettings.alignmentRule)
         {
@@ -266,14 +319,20 @@ public class Boid : MonoBehaviour
 			alignmentRenderer.endWidth = lineWidth;
 
             int segments = 2;
+			alignmentRenderer.positionCount = segments;
 			Vector3[] points = new Vector3[segments];
 
 
-			points[0] = transform.position;
-			points[1] = transform.position + Alignment();
+            points[0] = Vector3.zero;
+			points[1] = Alignment().normalized;
 
 			alignmentRenderer.SetPositions(points);
 		}
+
+        else
+        {
+            alignmentRenderer.positionCount = 0;
+        }
     }
 
 }
