@@ -32,7 +32,7 @@ public class BoidManager : MonoBehaviour
         boids.Add(newBoid.GetComponent<Boid>());
     }
 
-    void RandomizeBoids()
+    public void RandomizeBoids()
     {
         //Randomize Positions
 

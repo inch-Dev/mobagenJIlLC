@@ -6,6 +6,12 @@ using System.Linq;
 
 public class Boid : MonoBehaviour
 {
+
+    [SerializeField] LineRenderer radiusRenderer;
+    [SerializeField] LineRenderer accelRenderer;
+    [SerializeField] LineRenderer separationRenderer;
+    [SerializeField] LineRenderer cohesionRenderer;
+    [SerializeField] LineRenderer alignmentRenderer;
     Vector3 velocity;
     Vector3 acceleration;
     public Vector3 GetVelocity(){ return velocity; }
@@ -87,7 +93,7 @@ public class Boid : MonoBehaviour
 
         Debug.Log($"Alignment:{Alignment()}, Cohesion:{Cohesion()}, Separation:{Separation()}");
 
-        velocity += acceleration * Time.fixedDeltaTime;
+        velocity += acceleration * Time.fixedDeltaTime * boidSettings.movementSpeed;
         velocity = Vector3.ClampMagnitude(velocity, boidSettings.maxAcceleration);
 
         transform.position += velocity * Time.fixedDeltaTime;
@@ -175,33 +181,32 @@ public class Boid : MonoBehaviour
 
     void DrawDebug()
     {
-		if (boidSettings.showAcceleration)
-		{
+        DrawAcceleration(boidSettings.showAcceleration);
 
-		}
+        DrawRadius(boidSettings.showRadius);
 
-		if (boidSettings.showRadius)
-		{
-            DrawRadius();
-		}
-
-		if (boidSettings.showRules)
-		{
-
-		}
+		DrawRules(boidSettings.showRules);
 	}
 
-    void DrawAcceleration() { }
-
-    void DrawRadius()
+    void DrawAcceleration(bool showAccel)
     {
+        
+    }
+
+    void DrawRadius(bool showRadius)
+    {
+        if(!showRadius)
+        {
+            lineRenderer.SetPositions(null);
+            return;
+        }
         //Toggle off lineRenderer if no debug
         float lineWidth = .1f;
         int segments = 360;
-        lineRenderer.useWorldSpace = false;
-        lineRenderer.startWidth = lineWidth;
-        lineRenderer.endWidth = lineWidth;
-        lineRenderer.positionCount = segments + 1;
+        radiusRenderer.useWorldSpace = false;
+        radiusRenderer.startWidth = lineWidth;
+        radiusRenderer.endWidth = lineWidth;
+        radiusRenderer.positionCount = segments + 1;
 
         int pointCount = segments + 1;
         Vector3[] points = new Vector3[pointCount];
@@ -212,9 +217,63 @@ public class Boid : MonoBehaviour
             points[i] = new Vector3(Mathf.Sin(rad) * boidSettings.neighborhoodRadius, Mathf.Cos(rad) * boidSettings.neighborhoodRadius, 0f);
         }
 
-        lineRenderer.SetPositions(points);
+        radiusRenderer.SetPositions(points);
 
 
+    }
+
+    void DrawRules(bool showRules)
+    {
+		float lineWidth = .1f;
+
+		if (boidSettings.separationRule)
+        {
+            separationRenderer.useWorldSpace = false;
+            separationRenderer.startWidth = lineWidth;
+            separationRenderer.endWidth = lineWidth;
+
+            int segments = 2;
+            Vector3[] points = new Vector3[segments];
+
+
+			points[0] = transform.position;
+            points[1] = transform.position + Separation();
+
+            separationRenderer.SetPositions(points);
+        }
+
+
+        if(boidSettings.cohesionRule)
+        {
+			cohesionRenderer.useWorldSpace = false;
+			cohesionRenderer.startWidth = lineWidth;
+			cohesionRenderer.endWidth = lineWidth;
+
+			int segments = 2;
+			Vector3[] points = new Vector3[segments];
+
+
+			points[0] = transform.position;
+			points[1] = transform.position + Cohesion();
+
+			cohesionRenderer.SetPositions(points);
+		}
+
+        if(boidSettings.alignmentRule)
+        {
+			alignmentRenderer.useWorldSpace = false;
+			alignmentRenderer.startWidth = lineWidth;
+			alignmentRenderer.endWidth = lineWidth;
+
+            int segments = 2;
+			Vector3[] points = new Vector3[segments];
+
+
+			points[0] = transform.position;
+			points[1] = transform.position + Alignment();
+
+			alignmentRenderer.SetPositions(points);
+		}
     }
 
 }

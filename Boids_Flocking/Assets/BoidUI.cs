@@ -3,22 +3,14 @@ using UnityEngine;
 using UnityEngine.UI;
 public class BoidUI : MonoBehaviour
 {
-    [Header("General")]
-    [SerializeField] Slider numBoids;
-    [SerializeField] Slider neighborhoodRadius;
-    [Header("Display")]
-    [SerializeField] Toggle showAcceleration;
-    [SerializeField] Toggle showRadius;
-    [SerializeField] Toggle showRules;
-
-    [Header("Rules")]
-    [SerializeField] Toggle separation;
-    [SerializeField] Slider separationWeight;
-    [SerializeField] Slider separationDistance;
-    [SerializeField] Toggle cohesion;
-    [SerializeField] Slider cohesionWeight;
-    [SerializeField] Toggle alignment;
-    [SerializeField] Slider alignmentWeight;
+    public void SetNumBoids(TextMeshProUGUI tf){ tf.text = BoidSettings.instance.numBoids.ToString("F2"); }
+    public void SetNeighborhoodRadius(TextMeshProUGUI tf){ tf.text = BoidSettings.instance.neighborhoodRadius.ToString("F2"); }
+    public void SetMoveSpeed(TextMeshProUGUI tf){ tf.text = BoidSettings.instance.movementSpeed.ToString("F2"); }
+    public void SetMaxAccel(TextMeshProUGUI tf){ tf.text = BoidSettings.instance.maxAcceleration.ToString("F2"); }
+    public void SetSeparationWeight(TextMeshProUGUI tf){ tf.text = BoidSettings.instance.separationWeight.ToString("F2"); }
+    public void SetSeparationDistance(TextMeshProUGUI tf){ tf.text = BoidSettings.instance.targetSeparation.ToString("F2"); }
+    public void SetCohesionWeight(TextMeshProUGUI tf){  tf.text = BoidSettings.instance.cohesionWeight.ToString("F2"); }
+    public void SetAlignmentWeight(TextMeshProUGUI tf){ tf.text = BoidSettings.instance.alignmentWeight.ToString("F2"); }
 
     void Start()
     {
