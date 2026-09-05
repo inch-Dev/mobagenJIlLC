@@ -10,18 +10,36 @@ public class BoidManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(boidSettings != null && boids.Count < boidSettings.numBoids)
+        if (boids.Count < boidSettings.numBoids)
             SpawnBoids();
+        if (boids.Count > boidSettings.numBoids)
+            RemoveBoids();
 
-        Debug.Log($"Boid settings:{boidSettings}");
+            Debug.Log($"Boids:{boids.Count}, Num Boids:{boidSettings.numBoids}");
     }
 
     void SpawnBoids()
     {    
-        for(int i = boids.Count - 1; i < boidSettings.numBoids; i++)
+        for(int i = 0; boids.Count < boidSettings.numBoids; i++)
         {
             SpawnBoid();
         }
+    }
+
+    void RemoveBoids()
+    {
+        for(int i = 0; boids.Count > boidSettings.numBoids; i++)
+        {
+            foreach(Boid boid in boids)
+            {
+                boid.RemoveNeighbor(boids[i]);
+                
+            }
+            boids.RemoveAt(i);
+            Destroy(boids[i].gameObject);
+            
+        }
+        Debug.Log("Remove");
     }
 
     void SpawnBoid()
@@ -34,8 +52,10 @@ public class BoidManager : MonoBehaviour
 
     public void RandomizeBoids()
     {
-        //Randomize Positions
-
-        //Randomize velocity
+        foreach(Boid boid in boids)
+        {
+            boid.RandomizeMovement();
+            boid.RandomizePosition();
+        }
     }
 }

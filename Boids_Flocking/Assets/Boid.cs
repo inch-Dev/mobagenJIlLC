@@ -58,6 +58,12 @@ public class Boid : MonoBehaviour
         Debug.Log($"Obstacles:{obstacles.Count}");
     }
 
+    public void RemoveNeighbor(Boid boid)
+    {
+        if(neighbors.Contains(boid))
+            neighbors.Remove(boid);
+    }
+
     void MarginClip()
     {
         if(transform.position.x < boidSettings.horizontalMargins.x)
@@ -104,14 +110,14 @@ public class Boid : MonoBehaviour
             acceleration += Separation() * boidSettings.separationWeight;
         //acceleration += EdgeAvoidance();
 
-        Debug.Log($"Alignment:{Alignment()}, Cohesion:{Cohesion()}, Separation:{Separation()}");
+        //Debug.Log($"Alignment:{Alignment()}, Cohesion:{Cohesion()}, Separation:{Separation()}");
 
         velocity += acceleration * Time.fixedDeltaTime * boidSettings.movementSpeed;
         velocity = Vector3.ClampMagnitude(velocity, boidSettings.maxAcceleration);
 
         transform.position += velocity * Time.fixedDeltaTime;
 
-        Debug.Log($"Velocity:{velocity},Position:{transform.position}");
+        //Debug.Log($"Velocity:{velocity},Position:{transform.position}");
 
         acceleration = Vector3.zero;
 
@@ -123,9 +129,14 @@ public class Boid : MonoBehaviour
         }
     }
 
-    void RandomizeMovement()
+    public void RandomizeMovement()
     {
         velocity = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f).normalized * boidSettings.movementSpeed;
+    }
+
+    public void RandomizePosition()
+    {
+       transform.position = new Vector3(Random.Range(boidSettings.horizontalMargins.x, boidSettings.horizontalMargins.y), Random.Range(boidSettings.verticalMargins.x, boidSettings.verticalMargins.y), 0f);
     }
 
     Vector3 Alignment()
