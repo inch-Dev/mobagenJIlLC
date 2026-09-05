@@ -68,6 +68,24 @@ public class BoidSettings : MonoBehaviour
 
     public void  ResetBoidDefaultvalues()
     {
+        numBoids = 100;
+        neighborhoodRadius = 2f;
+        showAcceleration = false;
+        showRadius = false;
+        showRules = false;
+        separationRule = true;
+        separationWeight = 25f;
+        targetSeparation = 0.8f;
+        cohesionRule = true;
+        cohesionWeight = 20;
+        alignmentRule = true;
+        alignmentWeight = 2f;
+        movementSpeed = 2f;
+        maxAcceleration = 5f;
+        horizontalMargins.x = -20;
+        horizontalMargins.y = 20;
+        verticalMargins.x = -8;
+        verticalMargins.y = 8;
 
     }
 }

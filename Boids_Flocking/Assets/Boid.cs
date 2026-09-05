@@ -156,7 +156,7 @@ public class Boid : MonoBehaviour
             steer /= neighbors.Count;
         }
 
-        steer = (steer - GetVelocity()) * boidSettings.alignmentWeight;
+        steer = (steer - GetVelocity()); ;
         return steer;
     }
 
