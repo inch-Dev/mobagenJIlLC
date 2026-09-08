@@ -1,7 +1,18 @@
 using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 public class Agent : MonoBehaviour
 {
-    List<State> m_States;
+	[SerializeField] SpriteRenderer m_aliveRenderer;
+	[SerializeField] SpriteRenderer m_deadRenderer;
+	StateMachine m_stateMachine;
+	World m_World;
+	public void SetWorld(World world){ m_World = world; }
+	public World GetWorld(){ return m_World; }
+
+	private void Start()
+	{
+		m_stateMachine = GetComponent<StateMachine>();
+	}
 }

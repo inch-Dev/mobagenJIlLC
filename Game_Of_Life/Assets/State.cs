@@ -3,8 +3,11 @@ using System.Collections.Generic;
 public class State : MonoBehaviour
 {
     [SerializeField] List<Action> m_entryActions;
+    public List<Action> GetEntryActions(){ return m_entryActions; }
     [SerializeField] List<Action> m_stayActions;
+    public List<Action> GetStayActions(){ return m_stayActions; }
     [SerializeField] List<Action> m_exitActions;
+    public List<Action> GetExitActions(){  return m_exitActions; }
 
     [SerializeField] List<Transition> m_Transitions;
     void AddTransition(Transition newTransition)
