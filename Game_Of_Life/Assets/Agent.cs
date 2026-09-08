@@ -2,8 +2,14 @@ using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Security.Cryptography;
-public class Agent : MonoBehaviour
+public class Agent : MonoBehaviour, IStateable
 {
+
+	public void HandleState(GameState state)
+	{
+
+	}
+	
 	[SerializeField] SpriteRenderer m_aliveRenderer;
 	[SerializeField] SpriteRenderer m_deadRenderer;
 	StateMachine m_stateMachine;
