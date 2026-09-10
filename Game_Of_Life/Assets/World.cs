@@ -2,6 +2,7 @@ using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
+using JetBrains.Annotations;
 public class World : MonoBehaviour, IStateable
 {
 
@@ -27,7 +28,40 @@ public class World : MonoBehaviour, IStateable
     [SerializeField] GameObject agentPF;
 
     Agent[,] m_agents;
-    public Agent GetAgentAt(Vector2Int position){ return m_agents[position.x, position.y]; }
+    public Agent GetAgentAt(Vector2Int position)
+    { 
+        //Make sure to wrap!!!!
+        Vector2Int checkIndex = position;
+
+
+        if(position.x < 0)
+        {
+            //Calc offset
+            int xPositionOffset = gridSize.x - Mathf.Abs(position.x);
+            checkIndex.x = xPositionOffset;
+        }
+        else if(position.x  > gridSize.x - 1)
+        {
+            //Calc offset
+            int xPositionOffset = position.x - (gridSize.x - 1);
+            checkIndex.x = xPositionOffset;
+        }
+
+        if(position.y < 0)
+        {
+            //Calc offset
+            int yPositionOffset = gridSize.y - Mathf.Abs(position.y);
+            checkIndex.y = yPositionOffset;
+        }
+        else if(position.y > gridSize.y - 1)
+        {
+            //Calc offset
+            int yPositionOffset = position.y - (gridSize.y -1);
+            checkIndex.y = yPositionOffset;
+        }
+
+        return m_agents[checkIndex.x, checkIndex.y]; 
+    }
     public Vector2Int GetPositionOfAgent(Agent agent)
     {
         foreach(Agent worldAgent in m_agents)
@@ -76,7 +110,7 @@ public class World : MonoBehaviour, IStateable
     {
         foreach( Agent agent in m_agents)
         {
-            Debug.Log($"{agent.name} Position is:{GetPositionOfAgent(agent)}");
+            //Debug.Log($"{agent.name} Position is:{GetPositionOfAgent(agent)}");
             agent.GetStateMachine().UpdateState(agent);
         }
     }

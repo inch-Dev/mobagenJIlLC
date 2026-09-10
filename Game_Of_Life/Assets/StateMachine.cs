@@ -8,9 +8,11 @@ public class StateMachine : MonoBehaviour
     public void SetCurrentState(State newState){ m_currentState = newState; }
     public bool UpdateState(Agent agent)
     {
+        Debug.Log("Updating states");
         //Check All Transitions 
         foreach(Transition transition in m_currentState.GetTransitions())
         {
+            Debug.Log("Going through transitions");
             //If Condition Met
             if(transition.GetCondition().Test(agent))
             {
@@ -18,6 +20,7 @@ public class StateMachine : MonoBehaviour
                 foreach(Action exitAction in m_currentState.GetExitActions())
                 {
                     exitAction.Execute(agent);
+                    Debug.Log("Executing");
                 }
 
                 //Enter New State
@@ -25,6 +28,11 @@ public class StateMachine : MonoBehaviour
                 {
                     entryAction.Execute(agent);
                 }
+            }
+
+            else
+            {
+                //Debug.Log($"{transition.GetCondition()} was {transition.GetCondition().Test(agent)}");
             }
 
             m_currentState = transition.GetTargetState();

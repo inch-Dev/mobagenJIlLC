@@ -698,7 +698,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridSize: {x: 8, y: 8}
   offset: 1.25
-  stepIntervalSeconds: 0
+  stepIntervalSeconds: 1
   agentPF: {fileID: 3314349352105364349, guid: 02c6dc45c3cc0ff47819207bddf51aea, type: 3}
 --- !u!4 &1542957597
 Transform:
