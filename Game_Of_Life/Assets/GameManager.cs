@@ -48,5 +48,6 @@ public class GameManager : MonoBehaviour
 	{
 		if(instance == null)
 			instance = this;
+		SetState(GameState.CREATE);
 	}
 }

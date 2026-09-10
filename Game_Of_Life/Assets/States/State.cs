@@ -10,32 +10,33 @@ public class State : MonoBehaviour
     public List<Action> GetExitActions(){  return m_exitActions; }
 
     [SerializeField] List<Transition> m_Transitions;
+    public List<Transition> GetTransitions(){ return m_Transitions; }
     void AddTransition(Transition newTransition)
     {
         if(!m_Transitions.Contains(newTransition))
             m_Transitions.Add(newTransition);
     }
 
-	void AddTransition(Condition condition, State target, List<Action> actions)
+	protected void AddTransition(Condition condition, State target, List<Action> actions)
 	{
         Transition newTransition = new Transition(condition, target, actions);
         AddTransition(newTransition);
 	}
 
-	void AddEntryAction(Action entryAction)
+	protected void AddEntryAction(Action entryAction)
     {
         if(!m_entryActions.Contains(entryAction))
             m_entryActions.Add(entryAction);
     }
 
-    void AddExitAction(Action exitAction)
+    protected void AddExitAction(Action exitAction)
     {
         if(!m_exitActions.Contains(exitAction))
             m_exitActions.Add(exitAction);
     }
 
     //Stay Actions
-    void AddAction(Action action)
+    protected void AddAction(Action action)
     {
         if(!m_stayActions.Contains(action))
             m_stayActions.Add(action);

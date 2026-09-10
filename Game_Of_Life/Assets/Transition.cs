@@ -7,7 +7,9 @@ using System;
 public struct Transition
 {
     [SerializeField] Condition m_Condition;
+    public Condition GetCondition(){  return m_Condition; }
     [SerializeField] State m_Target;
+    public State GetTargetState(){  return m_Target; }
     [SerializeField] List<Action> m_Actions;
 
     public Transition(Condition condition, State target, List<Action> actions)
