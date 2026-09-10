@@ -34,7 +34,7 @@ public class World : MonoBehaviour, IStateable
         {
             if(worldAgent == agent)
             {
-                return new Vector2Int((int)agent.transform.position.x / (int)offset, (int)agent.transform.position.x / (int)offset);
+                return new Vector2Int((int)(agent.transform.position.x / offset), (int)(agent.transform.position.y / offset));
             }
         }
         return Vector2Int.zero;
@@ -65,6 +65,7 @@ public class World : MonoBehaviour, IStateable
     {
         foreach( Agent agent in m_agents)
         {
+            Debug.Log(GetPositionOfAgent(agent));
             agent.GetStateMachine().UpdateState(agent);
         }
     }
@@ -76,6 +77,7 @@ public class World : MonoBehaviour, IStateable
             for(int j = 0; j < gridSize.y; j++)
             {
                 SpawnCellAgent(new Vector2Int(i, j));
+                //Debug.Log($"Spawning at :{new Vector2Int(i, j)}");
             }
         }
     }
@@ -87,6 +89,8 @@ public class World : MonoBehaviour, IStateable
         newAgent.transform.parent = transform;
         newAgent.GetComponent<Agent>().SetWorld(this);
         newAgent.GetComponent<Agent>().GetStateMachine().SetCurrentState(newAgent.GetComponent<Dead>());
+
+        newAgent.name = "Agent" + index.ToString();
 
 		m_agents[index.x, index.y] = newAgent.GetComponent<Agent>();
     }

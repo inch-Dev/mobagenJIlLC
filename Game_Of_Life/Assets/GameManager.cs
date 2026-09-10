@@ -16,12 +16,17 @@ public interface IStateable
 	public void HandleState(GameState state);
 }
 
-
-
 public class GameManager : MonoBehaviour
 {
     [HideInInspector] public static GameManager instance;
 	GameState m_curState;
+
+	public void SetState(int state)
+	{
+		SetState((GameState)state);
+	}
+
+
 	public void SetState(GameState state)
 	{
 		m_curState = state;
