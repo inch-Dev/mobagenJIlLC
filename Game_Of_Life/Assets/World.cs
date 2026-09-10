@@ -34,7 +34,18 @@ public class World : MonoBehaviour, IStateable
         {
             if(worldAgent == agent)
             {
-                return new Vector2Int((int)(agent.transform.position.x / offset), (int)(agent.transform.position.y / offset));
+                //Debug.Log($"Transform is {agent.transform.position}");
+                Vector2Int position = Vector2Int.zero;
+                position.x = (int)(agent.transform.localPosition.x / offset);
+                position.y = (int)(agent.transform.localPosition.y / offset);
+
+                if (agent.transform.position.x == 0)
+                    position.x = 0;
+                if (agent.transform.position.y == 0)
+                    position.y = 0;
+                //Debug.Log($"Calculating position:{position.x},{position.y}");
+
+                return position;
             }
         }
         return Vector2Int.zero;
@@ -65,7 +76,7 @@ public class World : MonoBehaviour, IStateable
     {
         foreach( Agent agent in m_agents)
         {
-            Debug.Log(GetPositionOfAgent(agent));
+            Debug.Log($"{agent.name} Position is:{GetPositionOfAgent(agent)}");
             agent.GetStateMachine().UpdateState(agent);
         }
     }
@@ -84,7 +95,7 @@ public class World : MonoBehaviour, IStateable
 
     void SpawnCellAgent(Vector2Int index)
     {
-        Vector2 newPosition = new Vector2(transform.position.x + index.x * offset, transform.position.y + index.y * offset);
+        Vector2 newPosition = new Vector2(transform.position.x + (index.x * offset), transform.position.y + (index.y * offset));
         GameObject newAgent = GameObject.Instantiate(agentPF, newPosition, Quaternion.identity);
         newAgent.transform.parent = transform;
         newAgent.GetComponent<Agent>().SetWorld(this);
