@@ -27,8 +27,9 @@ public class Reproduction : Condition
 
 		foreach (Vector2Int directionCheck in directionChecks)
 		{
-			if (World.instance.GetAgentAt(agentPos + directionCheck).GetStateMachine().GetCurrentState() is Alive)
+			if (World.instance.GetAgentAt(agentPos + directionCheck).GetStateMachine().GetSnapshotState() is Alive)
 			{
+				//Debug.Log($"Neighbor of {agentPos} at {agentPos + directionCheck} is {World.instance.GetAgentAt(agentPos + directionCheck).GetStateMachine().GetCurrentState()}");
 				aliveNeighborCount++;
 			}
 		}

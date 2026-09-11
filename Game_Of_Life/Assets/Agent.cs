@@ -10,13 +10,16 @@ public class Agent : MonoBehaviour, IStateable
 	{
 		
 	}
-	
-	[SerializeField] SpriteRenderer m_aliveRenderer;
-	public SpriteRenderer GetAliveRenderer(){ return m_aliveRenderer; }
-	public void SetAliveRenderer(bool isOn){ m_aliveRenderer.enabled = isOn; }
-	[SerializeField] SpriteRenderer m_deadRenderer;
-	public SpriteRenderer GetDeadRenderer(){  return m_deadRenderer; }
-	public void SetDeadRenderer(bool isOn){  m_deadRenderer.enabled = isOn; }
+
+	SpriteRenderer m_spriteRenderer;
+	public SpriteRenderer GetRenderer(){ return m_spriteRenderer; }
+	public void SetRenderer(bool isAlive)
+	{
+		if (isAlive)
+			m_spriteRenderer.color = Color.yellow;
+		else
+			m_spriteRenderer.color = Color.black;
+	}
 	StateMachine m_stateMachine;
 	public StateMachine GetStateMachine(){ return  m_stateMachine; }
 	World m_World;
@@ -26,5 +29,6 @@ public class Agent : MonoBehaviour, IStateable
 	private void Awake()
 	{
 		m_stateMachine = GetComponent<StateMachine>();
+		m_spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 	}
 }

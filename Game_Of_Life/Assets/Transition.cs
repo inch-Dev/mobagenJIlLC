@@ -12,6 +12,8 @@ public struct Transition
     public State GetTargetState(){  return m_Target; }
     [SerializeField] List<Action> m_Actions;
 
+    public List<Action> GetActions(){ return m_Actions; }
+
     public Transition(Condition condition, State target, List<Action> actions)
     {
         m_Condition = condition;

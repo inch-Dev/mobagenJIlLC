@@ -10,7 +10,7 @@ public class Mouse : MonoBehaviour,  IStateable
                 canClick = true;
                 break;
             case GameState.PLAY:
-                canClick = false;
+                canClick = true;
                 break;
         }
     }
@@ -29,19 +29,20 @@ public class Mouse : MonoBehaviour,  IStateable
         RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
         if(hit.collider != null && hit.collider.gameObject.GetComponent<Agent>())
         {
-            switch (hit.collider.gameObject.GetComponent<Agent>().GetStateMachine().GetCurrentState())
-            {
-                case Alive:
-					hit.collider.gameObject.GetComponent<Agent>().GetComponent<StateMachine>().SetCurrentState(hit.collider.gameObject.GetComponent<Dead>());
-                    hit.collider.gameObject.GetComponent<Agent>().SetAliveRenderer(false);
-                    hit.collider.gameObject.GetComponent<Agent>().SetDeadRenderer(true);
-					break;
-                case Dead:
-					hit.collider.gameObject.GetComponent<Agent>().GetComponent<StateMachine>().SetCurrentState(hit.collider.gameObject.GetComponent<Alive>());
-                    hit.collider.gameObject.GetComponent <Agent>().SetDeadRenderer(false);
-                    hit.collider.gameObject.GetComponent<Agent>().SetAliveRenderer(true);
-					break;
-            }
+                if (hit.collider.gameObject.GetComponent<Agent>().GetStateMachine().GetSnapshotState() is Alive)
+                {
+                hit.collider.gameObject.GetComponent<Agent>().SetRenderer(false);
+				    hit.collider.gameObject.GetComponent<Agent>().GetComponent<StateMachine>().SetCurrentState(hit.collider.gameObject.GetComponent<Dead>());
+				hit.collider.gameObject.GetComponent<Agent>().GetComponent<StateMachine>().SetSnapshotState(hit.collider.gameObject.GetComponent<Dead>());
+				Debug.Log("Setting state to dead");
+                }
+                else if (hit.collider.gameObject.GetComponent<Agent>().GetStateMachine().GetSnapshotState() is Dead)
+                {
+                hit.collider.gameObject.GetComponent<Agent>().SetRenderer(true);
+				    hit.collider.gameObject.GetComponent<Agent>().GetComponent<StateMachine>().SetCurrentState(hit.collider.gameObject.GetComponent<Alive>());
+                    hit.collider.gameObject.GetComponent<Agent>().GetComponent<StateMachine>().SetSnapshotState(hit.collider.gameObject.GetComponent<Alive>());
+                Debug.Log("Setting state to alive");
+                }
 		}
     }
 }

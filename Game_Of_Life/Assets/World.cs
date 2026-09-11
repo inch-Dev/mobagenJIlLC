@@ -101,6 +101,7 @@ public class World : MonoBehaviour, IStateable
             stepIntervalTimeElapsed += Time.deltaTime;
             if(stepIntervalTimeElapsed >= stepIntervalSeconds)
             {
+                stepIntervalTimeElapsed = 0f;
                 Step();
             }
         }
@@ -113,6 +114,16 @@ public class World : MonoBehaviour, IStateable
             //Debug.Log($"{agent.name} Position is:{GetPositionOfAgent(agent)}");
             agent.GetStateMachine().UpdateState(agent);
         }
+
+        UpdateSnapshot();
+    }
+
+    void UpdateSnapshot()
+    {
+        foreach(Agent agent in m_agents)
+        {
+			agent.GetStateMachine().SetSnapshotState(agent.GetStateMachine().GetCurrentState());
+		}
     }
 
     void GenerateGrid()

@@ -4,7 +4,8 @@ public class Born : Action
 {
 	public override void Execute(Agent agent)
 	{
-		agent.GetDeadRenderer().enabled = false;
-		agent.GetAliveRenderer().enabled = true;
+		agent.SetRenderer(true);
+
+		Debug.Log($"Agent at {World.instance.GetPositionOfAgent(agent)} was born");
 	}
 }

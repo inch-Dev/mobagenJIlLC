@@ -27,7 +27,7 @@ public class Underpopulation : Condition
 
 		foreach (Vector2Int directionCheck in directionChecks)
 		{
-			if (World.instance.GetAgentAt(agentPos + directionCheck).GetStateMachine().GetCurrentState() is Alive)
+			if (World.instance.GetAgentAt(agentPos + directionCheck).GetStateMachine().GetSnapshotState() is Alive)
 			{
 				aliveNeighborCount++;
 			}

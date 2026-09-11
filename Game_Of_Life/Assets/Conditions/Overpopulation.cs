@@ -6,6 +6,7 @@ public class Overpopulation : Condition
 {
 	public override bool Test(Agent agent) 
 	{
+		Debug.Log("Testing overpop...");
 		Vector2Int agentPos = World.instance.GetPositionOfAgent(agent);
 
 		//Four or more neighbors
@@ -27,14 +28,17 @@ public class Overpopulation : Condition
 
 		foreach(Vector2Int directionCheck in directionChecks)
 		{
-			if (World.instance.GetAgentAt(agentPos + directionCheck).GetStateMachine().GetCurrentState() is Alive)
+			if (World.instance.GetAgentAt(agentPos + directionCheck).GetStateMachine().GetSnapshotState() is Alive)
 			{
 				aliveNeighborCount++;
 			}
 		}
 
 		if (aliveNeighborCount >= 4)
+		{
+			Debug.Log($"{agent} should die...");
 			return true;
+		}
 
 
 		return false;
