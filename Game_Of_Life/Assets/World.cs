@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
 using JetBrains.Annotations;
+using NUnit.Framework.Constraints;
 public class World : MonoBehaviour, IStateable
 {
 
@@ -21,10 +22,14 @@ public class World : MonoBehaviour, IStateable
     }
     [HideInInspector] public static World instance;
     [SerializeField] Vector2Int gridSize;
+    public void SetGridSize(Vector2Int newSize) { gridSize = newSize; }
+    public void SetGridSize(int newSize) {  gridSize.x = newSize; gridSize.y = newSize; } 
     [SerializeField] float offset;
     bool isRunning = false;
     [SerializeField] float stepIntervalSeconds;
+    public void SetIntervalSeconds(float intervalSeconds) { stepIntervalSeconds = intervalSeconds; }
     float stepIntervalTimeElapsed = 0f;
+    public float GetStepElapsedSeconds() { return stepIntervalTimeElapsed; }
     [SerializeField] GameObject agentPF;
 
     Agent[,] m_agents;
@@ -107,7 +112,7 @@ public class World : MonoBehaviour, IStateable
         }
 	}
 
-	void Step()
+	public void Step()
     {
         foreach( Agent agent in m_agents)
         {
@@ -126,7 +131,30 @@ public class World : MonoBehaviour, IStateable
 		}
     }
 
-    void GenerateGrid()
+    public void RandomizeGrid()
+    {
+        foreach (Agent agent in m_agents)
+        {
+            Debug.Log("Callig");
+            int randomIndex = Random.Range(0, 2);
+            switch (randomIndex)
+            {
+                case 0:
+                    agent.SetRenderer(false);
+                    agent.GetStateMachine().SetCurrentState(agent.GetComponent<Dead>());
+                    agent.GetStateMachine().SetSnapshotState(agent.GetComponent<Dead>());
+                    break;
+                case 1:
+                    agent.SetRenderer(true);
+                    agent.GetStateMachine().SetCurrentState(agent.GetComponent<Alive>());
+                    agent.GetStateMachine().SetSnapshotState(agent.GetComponent<Alive>());
+                    break;
+            }
+        }
+    }
+
+
+    public void GenerateGrid()
     {
         for(int i = 0; i < gridSize.x; i++)
         {
