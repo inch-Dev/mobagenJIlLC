@@ -2690,9 +2690,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ebc43e5950593243b444cab5383d01a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: {x: 8, y: 8}
+  gridSize: {x: 4, y: 4}
   offset: 1.25
-  stepIntervalSeconds: 1
+  stepIntervalSeconds: 5
   agentPF: {fileID: 3314349352105364349, guid: 02c6dc45c3cc0ff47819207bddf51aea, type: 3}
 --- !u!4 &1542957597
 Transform:

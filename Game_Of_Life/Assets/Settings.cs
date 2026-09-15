@@ -15,14 +15,13 @@ public class Settings : MonoBehaviour
     [SerializeField] TextMeshProUGUI m_frameInfoTF;
     public void SetFrameInfo()
     {
-        m_frameInfoTF.text = m_updateSpeed.ToString() + "ms " + m_frameRate + "FPS";
+        m_frameInfoTF.text = m_updateSpeed.ToString("F2") + "ms " + m_frameRate.ToString("F2") + "FPS";
     }
     [SerializeField] TextMeshProUGUI m_averageFrameInfoTF;
     public void SetAverageFrameInfo()
     {
-        m_averageFrameInfoTF.text = "AVG:" + m_averageupdateSpeed.ToString() + "ms " + m_averageRate + "FPS";
+        m_averageFrameInfoTF.text = "AVG:" + m_averageupdateSpeed.ToString("F2") + "ms " + m_averageRate.ToString("F2") + "FPS";
     }
-
     [SerializeField] Slider m_gridSizeSlider;
     [SerializeField] TextMeshProUGUI m_gridSizeTF;
     public void SetGridSize()
