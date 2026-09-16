@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework.Constraints;
 using Unity.VisualScripting;
 using JetBrains.Annotations;
+using UnityEditor.Experimental.GraphView;
 
 public class Maze : MonoBehaviour, IStateable
 {
@@ -141,7 +142,10 @@ public class Maze : MonoBehaviour, IStateable
             searchVertices.Add(GetVertexAt(new Vector2Int(0, 0)));
         }
 
-        
+
+        searchHead.SetSearchState(SearchState.OPEN);
+
+
 
 
         Debug.Log("Stepping");
@@ -157,10 +161,6 @@ public class Maze : MonoBehaviour, IStateable
         {
             int randomIndex = GetRandomNumber();
             int choosenNeighborIndex = randomIndex % neighbors.Count;
-            if(neighbors[choosenNeighborIndex].GetSearchState() == SearchState.OPEN)
-                neighbors[choosenNeighborIndex].SetSearchState(SearchState.CLOSED);
-            else
-                neighbors[choosenNeighborIndex].SetSearchState((SearchState)SearchState.OPEN);
 
             //Debug.Log("Multiple Neighbors");
 			searchVertices.Add(neighbors[choosenNeighborIndex]);
@@ -170,8 +170,6 @@ public class Maze : MonoBehaviour, IStateable
         //One neighbor
         else if(neighbors.Count > 0) 
         {
-            neighbors[0].SetSearchState(SearchState.OPEN);
-            //Debug.Log("One neighbor");
             searchVertices.Add(neighbors[0]);
             searchHead = neighbors[0];
 		}
@@ -185,25 +183,22 @@ public class Maze : MonoBehaviour, IStateable
             {
                 searchHead = searchVertices[searchVertices.Count - 1];
             }
-            //Turn around
-            //Remove search head from stack -> update color
-            //Update search head to second to last in stack
         }
 
-		foreach (Vertex vertex in searchVertices)
-		{
-			switch (vertex.GetSearchState())
-			{
-				case SearchState.OPEN:
-					vertex.GetSpriteRenderer().color = Color.green;
-					break;
-				case SearchState.CLOSED:
-					vertex.GetSpriteRenderer().color = Color.cyan;
-					break;
-			}
+		//foreach (Vertex vertex in searchVertices)
+		//{
+		//	switch (vertex.GetSearchState())
+		//	{
+		//		case SearchState.OPEN:
+		//			vertex.GetSpriteRenderer().color = Color.green;
+		//			break;
+		//		case SearchState.CLOSED:
+		//			vertex.GetSpriteRenderer().color = Color.cyan;
+		//			break;
+		//	}
 
 
-		}
+		//}
 
         if(searchHead)
         {
