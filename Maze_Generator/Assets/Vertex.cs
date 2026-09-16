@@ -19,7 +19,21 @@ public class Vertex : MonoBehaviour
     public void SetIndex(Vector2Int newIndex){ index = newIndex; }
     SearchState searchState = SearchState.UNVISITED;
     public SearchState GetSearchState() { return searchState; }
-    public void SetSearchState(SearchState state) { searchState = state; }
+    public void SetSearchState(SearchState state) 
+    { 
+        searchState = state;
+
+        switch (searchState)
+        {
+            case SearchState.OPEN:
+				spriteRenderer.color = Color.green;
+				break;
+			case SearchState.CLOSED:
+				spriteRenderer.color = Color.cyan;
+				break;
+        }
+
+    }
     [SerializeField] List<Sprite> stateSprites = new List<Sprite>();
     SpriteRenderer spriteRenderer;
     public SpriteRenderer GetSpriteRenderer() { return spriteRenderer; }
@@ -55,14 +69,10 @@ public class Vertex : MonoBehaviour
     {
         
     }
+	private void Awake()
+	{
+		spriteRenderer = GetComponent<SpriteRenderer>();
+		searchState = SearchState.UNVISITED;
+	}
 
-    public void Search()
-    {
-        
-    }
-
-    private void Start()
-    {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-    }
 }

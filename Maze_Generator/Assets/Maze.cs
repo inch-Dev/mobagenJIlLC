@@ -68,8 +68,12 @@ public class Maze : MonoBehaviour, IStateable
         //Search in clockwise order
         for(int i = 0; i < directions.Count; i++)
         {
-            if (GetVertexAt(vertex.GetIndex() + directions[i]))
-                neighbors.Add(GetVertexAt(vertex.GetIndex() + directions[i]));  
+            if (GetVertexAt(vertex.GetIndex() + directions[i]) != null)
+            {
+                if(GetVertexAt(vertex.GetIndex() + directions[i]).GetSearchState() != SearchState.CLOSED)
+					neighbors.Add(GetVertexAt(vertex.GetIndex() + directions[i]));
+			}
+                
         }
 
         return neighbors;
@@ -79,8 +83,8 @@ public class Maze : MonoBehaviour, IStateable
     private void Start()
     {
         GenerateMaze();
-        searchHead = GetVertexAt(new Vector2Int(0, 0));
-    }
+
+	}
 
     private void Update()
     {
@@ -107,29 +111,41 @@ public class Maze : MonoBehaviour, IStateable
             }
         }
 
-        
-    }
+        //Debug.Log($"Search Head:{searchHead}");
+	}
 
     void GenerateVertex(Vector2 position)
     {
         GameObject newVertexObject = GameObject.Instantiate(vertexPF, new Vector3(position.x, position.y, 0f), Quaternion.identity);
-        newVertexObject.transform.parent = this.transform;
+        newVertexObject.name = "Vertex" + new Vector2Int((int)(position.x / offset), (int)(position.y / offset)).ToString();
+
+		newVertexObject.transform.parent = this.transform;
 
         Vertex newVertex = newVertexObject.GetComponent<Vertex>();
         newVertex.SetIndex(new Vector2Int((int)(position.x / offset), (int)(position.y / offset)));
+        //Debug.Log($"Setting index to:{newVertex.GetIndex()}");
         newVertex.RandomizeWalls();
+
+        mazeVertices.Add(newVertex);
     }
 
     public void Step()
     {
-        Debug.Log("Stepping");
-        //Get Stack -> Update Colors
-        foreach(Vertex vertex in searchVertices)
+
+        //If not initialized
+        if(searchHead == null)
         {
-            vertex.GetSpriteRenderer().color = Color.green;
+            //Debug.Log("Search head null");
+            searchHead = GetVertexAt(new Vector2Int(0, 0));
+            searchHead.SetSearchState(SearchState.OPEN);
+            searchVertices.Add(GetVertexAt(new Vector2Int(0, 0)));
         }
 
-        searchHead.GetSpriteRenderer().color = Color.blue;
+        
+
+
+        Debug.Log("Stepping");
+        //Get Stack -> Update Colors
 
         //Move through stack
 
@@ -141,22 +157,58 @@ public class Maze : MonoBehaviour, IStateable
         {
             int randomIndex = GetRandomNumber();
             int choosenNeighborIndex = randomIndex % neighbors.Count;
-            neighbors[choosenNeighborIndex].Search();
-            neighbors[choosenNeighborIndex].GetSpriteRenderer().color = Color.blue;
+            if(neighbors[choosenNeighborIndex].GetSearchState() == SearchState.OPEN)
+                neighbors[choosenNeighborIndex].SetSearchState(SearchState.CLOSED);
+            else
+                neighbors[choosenNeighborIndex].SetSearchState((SearchState)SearchState.OPEN);
+
+            //Debug.Log("Multiple Neighbors");
+			searchVertices.Add(neighbors[choosenNeighborIndex]);
+			searchHead = neighbors[choosenNeighborIndex];
         }
 
+        //One neighbor
         else if(neighbors.Count > 0) 
         {
-            neighbors[0].Search();
-            neighbors[0].GetSpriteRenderer().color = Color.blue;
-        }
+            neighbors[0].SetSearchState(SearchState.OPEN);
+            //Debug.Log("One neighbor");
+            searchVertices.Add(neighbors[0]);
+            searchHead = neighbors[0];
+		}
 
         else
         {
+            Debug.Log($"Can't Find Neighbors!!! Turning around from {searchHead}...");
+            searchHead.SetSearchState(SearchState.CLOSED);
+            searchVertices.Remove(searchHead);
+            if (searchVertices.Count != 0)
+            {
+                searchHead = searchVertices[searchVertices.Count - 1];
+            }
             //Turn around
             //Remove search head from stack -> update color
             //Update search head to second to last in stack
         }
 
-    }
+		foreach (Vertex vertex in searchVertices)
+		{
+			switch (vertex.GetSearchState())
+			{
+				case SearchState.OPEN:
+					vertex.GetSpriteRenderer().color = Color.green;
+					break;
+				case SearchState.CLOSED:
+					vertex.GetSpriteRenderer().color = Color.cyan;
+					break;
+			}
+
+
+		}
+
+        if(searchHead)
+        {
+            searchHead.GetSpriteRenderer().color = Color.blue;
+        }
+
+	}
 }
