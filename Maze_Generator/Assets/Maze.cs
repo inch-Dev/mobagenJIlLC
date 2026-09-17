@@ -35,7 +35,7 @@ public class Maze : MonoBehaviour, IStateable
     [SerializeField] float offset;
     [SerializeField] GameObject vertexPF;
     List<Vertex> mazeVertices = new List<Vertex>();
-   Vertex GetVertexAt(Vector2Int index)
+   Vertex GetVertexAt(UnityEngine.Vector2 index)
     {
         foreach(Vertex vertex in mazeVertices)
         {
@@ -84,11 +84,11 @@ public class Maze : MonoBehaviour, IStateable
         List<Vertex> neighbors = new List<Vertex>();
 
         //Search in directions
-        List<Vector2Int> directions = new List<Vector2Int>();
-        directions.Add(Vector2Int.up);
-        directions.Add(Vector2Int.right);
-        directions.Add(Vector2Int.down);
-        directions.Add(Vector2Int.left);
+        List<UnityEngine.Vector2> directions = new List<UnityEngine.Vector2>();
+        directions.Add(UnityEngine.Vector2.up);
+        directions.Add(UnityEngine.Vector2.right);
+        directions.Add(UnityEngine.Vector2.down);
+        directions.Add(UnityEngine.Vector2.left);
         
         //Search in clockwise order
         for(int i = 0; i < directions.Count; i++)
@@ -146,12 +146,13 @@ public class Maze : MonoBehaviour, IStateable
     void GenerateVertex(UnityEngine.Vector2 position)
     {
         GameObject newVertexObject = GameObject.Instantiate(vertexPF, new UnityEngine.Vector3(position.x, position.y, 0f), UnityEngine.Quaternion.identity);
-        newVertexObject.name = "Vertex" + new Vector2Int((int)(position.x / offset), (int)(position.y / offset)).ToString();
+		//newVertexObject.name = "Vertex" + new Vector2Int((int)(position.x / offset), (int)(position.y / offset)).ToString();
+		newVertexObject.name = "Vertex" + new UnityEngine.Vector2((position.x / offset), (position.y / offset)).ToString();
 
 		newVertexObject.transform.parent = this.transform;
 
         Vertex newVertex = newVertexObject.GetComponent<Vertex>();
-        newVertex.SetIndex(new Vector2Int((int)(position.x / offset), (int)(position.y / offset)));
+        newVertex.SetIndex(new UnityEngine.Vector2((position.x / offset), (position.y / offset)));
         //Debug.Log($"Setting index to:{newVertex.GetIndex()}");
 
         mazeVertices.Add(newVertex);
@@ -208,7 +209,8 @@ public class Maze : MonoBehaviour, IStateable
         {
             Debug.Log($"Can't Find Neighbors!!! Turning around from {searchHead}...");
             searchHead.SetColor(Color.cyan);
-            searchVertices.Remove(searchHead);
+			//searchHead.SetSearchState(SearchState.VISITED);
+			searchVertices.Remove(searchHead);
             if (searchVertices.Count != 0)
             {
                 searchHead = searchVertices[searchVertices.Count - 1];

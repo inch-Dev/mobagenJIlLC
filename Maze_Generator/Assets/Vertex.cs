@@ -15,9 +15,9 @@ public enum SearchState
 
 public class Vertex : MonoBehaviour
 {
-    Vector2Int index;
-    public Vector2Int GetIndex() {  return index; }
-    public void SetIndex(Vector2Int newIndex){ index = newIndex; }
+    UnityEngine.Vector2 index;
+    public UnityEngine.Vector2 GetIndex() {  return index; }
+    public void SetIndex(UnityEngine.Vector2 newIndex){ index = newIndex; }
     SearchState searchState = SearchState.UNVISITED;
     public SearchState GetSearchState() { return searchState; }
     public void SetSearchState(SearchState state) 
