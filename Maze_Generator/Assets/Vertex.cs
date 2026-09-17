@@ -8,7 +8,8 @@ public enum SearchState
     NULL = -1,
     UNVISITED,
     OPEN,
-    CLOSED
+    CLOSED,
+    VISITED,
 }
     
 
@@ -34,41 +35,14 @@ public class Vertex : MonoBehaviour
         }
 
     }
+
+    public void SetColor(Color color)
+    {
+        spriteRenderer.color = color;
+    }
     [SerializeField] List<Sprite> stateSprites = new List<Sprite>();
     SpriteRenderer spriteRenderer;
     public SpriteRenderer GetSpriteRenderer() { return spriteRenderer; }
-
-    Vector<bool> walls;
-    //Add wall bools to walls
-
-    public bool GetNorthWall()
-    {
-        return walls[0];
-    }
-    public void SetNorthWall(bool northWall){ }
-
-    public bool GetSouthWall()
-    {
-        return true;
-    }
-    public void SetSouthWall(bool southWall){ }
-
-    public bool GetEastWall()
-    {
-        return walls[1];
-
-    }
-
-    public bool GetWestWall()
-    {
-        return true;
-    }
-    public void SetWestWall(bool westWall){ }
-
-    public void RandomizeWalls()
-    {
-        
-    }
 	private void Awake()
 	{
 		spriteRenderer = GetComponent<SpriteRenderer>();

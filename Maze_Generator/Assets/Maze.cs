@@ -1,9 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using NUnit.Framework.Constraints;
-using Unity.VisualScripting;
-using JetBrains.Annotations;
-using UnityEditor.Experimental.GraphView;
+using System.Numerics;
 
 public class Maze : MonoBehaviour, IStateable
 {
@@ -47,7 +44,34 @@ public class Maze : MonoBehaviour, IStateable
         }
         return null;
     }
-    List<Vertex> searchVertices = new List<Vertex>();
+
+    Vector<bool> walls;
+
+    bool GetNorthWall(Vector2Int indexPosition)
+    {
+        bool wall = false;
+        return walls[2 * (indexPosition.y * ((sideSize + 1) + indexPosition.x)) + 1];
+    }
+
+	bool GetEastWall(Vector2Int indexPosition)
+	{
+		bool wall = false;
+		return walls[2 * ((indexPosition.y + 1) * (sideSize + 1) + indexPosition.x) + 1];
+	}
+
+	bool GetSouthWall(Vector2Int indexPosition)
+	{
+		bool wall = false;
+		return walls[2 * ((indexPosition.y + 1) * ((sideSize + 1) + indexPosition.x)) + 1];
+	}
+
+	bool GetWestWall(Vector2Int indexPosition)
+	{
+		bool wall = false;
+		return walls[2 * (indexPosition.y * ((sideSize + 1) + indexPosition.x))];
+	}
+
+	List<Vertex> searchVertices = new List<Vertex>();
     Vertex searchHead;
 
     [SerializeField] float stepTimeSeconds;
@@ -71,11 +95,15 @@ public class Maze : MonoBehaviour, IStateable
         {
             if (GetVertexAt(vertex.GetIndex() + directions[i]) != null)
             {
-                if(GetVertexAt(vertex.GetIndex() + directions[i]).GetSearchState() != SearchState.CLOSED)
-					neighbors.Add(GetVertexAt(vertex.GetIndex() + directions[i]));
+                if (GetVertexAt(vertex.GetIndex() + directions[i]).GetSearchState() == SearchState.UNVISITED)
+                {
+                    neighbors.Add(GetVertexAt(vertex.GetIndex() + directions[i]));
+                    Debug.Log($"Viable neighbor for {vertex.gameObject}:{GetVertexAt(vertex.GetIndex() + directions[i]).gameObject}");
+                }
 			}
                 
         }
+
 
         return neighbors;
     }
@@ -108,16 +136,16 @@ public class Maze : MonoBehaviour, IStateable
         {
             for(int j = 0; j < sideSize; j++)
             {
-                GenerateVertex(new Vector2(i * offset, j * offset));
+                GenerateVertex(new UnityEngine.Vector2(i * offset, j * offset));
             }
         }
 
         //Debug.Log($"Search Head:{searchHead}");
 	}
 
-    void GenerateVertex(Vector2 position)
+    void GenerateVertex(UnityEngine.Vector2 position)
     {
-        GameObject newVertexObject = GameObject.Instantiate(vertexPF, new Vector3(position.x, position.y, 0f), Quaternion.identity);
+        GameObject newVertexObject = GameObject.Instantiate(vertexPF, new UnityEngine.Vector3(position.x, position.y, 0f), UnityEngine.Quaternion.identity);
         newVertexObject.name = "Vertex" + new Vector2Int((int)(position.x / offset), (int)(position.y / offset)).ToString();
 
 		newVertexObject.transform.parent = this.transform;
@@ -125,7 +153,6 @@ public class Maze : MonoBehaviour, IStateable
         Vertex newVertex = newVertexObject.GetComponent<Vertex>();
         newVertex.SetIndex(new Vector2Int((int)(position.x / offset), (int)(position.y / offset)));
         //Debug.Log($"Setting index to:{newVertex.GetIndex()}");
-        newVertex.RandomizeWalls();
 
         mazeVertices.Add(newVertex);
     }
@@ -142,19 +169,22 @@ public class Maze : MonoBehaviour, IStateable
             searchVertices.Add(GetVertexAt(new Vector2Int(0, 0)));
         }
 
+        foreach(Vertex vertex in searchVertices)
+        {
+            vertex.SetColor(Color.green);
+        }
 
-        searchHead.SetSearchState(SearchState.OPEN);
+        searchHead.SetColor(Color.blue);
+		searchHead.SetSearchState(SearchState.VISITED);
 
 
+		///Debug.Log("Stepping");
+		//Get Stack -> Update Colors
 
+		//Move through stack
 
-        Debug.Log("Stepping");
-        //Get Stack -> Update Colors
-
-        //Move through stack
-
-        //Get neighbors
-        List<Vertex> neighbors = GetNeighbors(searchHead);
+		//Get neighbors
+		List<Vertex> neighbors = GetNeighbors(searchHead);
 
         //Random select search
         if(neighbors.Count > 1)
@@ -165,7 +195,7 @@ public class Maze : MonoBehaviour, IStateable
             //Debug.Log("Multiple Neighbors");
 			searchVertices.Add(neighbors[choosenNeighborIndex]);
 			searchHead = neighbors[choosenNeighborIndex];
-        }
+		}
 
         //One neighbor
         else if(neighbors.Count > 0) 
@@ -177,33 +207,12 @@ public class Maze : MonoBehaviour, IStateable
         else
         {
             Debug.Log($"Can't Find Neighbors!!! Turning around from {searchHead}...");
-            searchHead.SetSearchState(SearchState.CLOSED);
+            searchHead.SetColor(Color.cyan);
             searchVertices.Remove(searchHead);
             if (searchVertices.Count != 0)
             {
                 searchHead = searchVertices[searchVertices.Count - 1];
             }
         }
-
-		//foreach (Vertex vertex in searchVertices)
-		//{
-		//	switch (vertex.GetSearchState())
-		//	{
-		//		case SearchState.OPEN:
-		//			vertex.GetSpriteRenderer().color = Color.green;
-		//			break;
-		//		case SearchState.CLOSED:
-		//			vertex.GetSpriteRenderer().color = Color.cyan;
-		//			break;
-		//	}
-
-
-		//}
-
-        if(searchHead)
-        {
-            searchHead.GetSpriteRenderer().color = Color.blue;
-        }
-
 	}
 }
