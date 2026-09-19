@@ -2,6 +2,7 @@ using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Numerics;
+using UnityEditor.Experimental.GraphView;
 
 public enum SearchState
 {
@@ -40,7 +41,45 @@ public class Vertex : MonoBehaviour
     {
         spriteRenderer.color = color;
     }
-    [SerializeField] List<Sprite> stateSprites = new List<Sprite>();
+
+    bool rightWall;
+    public bool GetRightWall() { return rightWall; }
+
+    public void SetRightWall(bool wall)
+    {
+        rightWall = wall;
+        SetWalls();
+    }
+    bool upWall;
+    public bool GetUpWall() { return upWall; }
+    public void SetUpWall(bool wall)
+    {
+        upWall = wall;
+        SetWalls();
+    }
+    [SerializeField] List<Sprite> wallSprites = new List<Sprite>();
+    void SetWalls()
+    {
+        if (rightWall && upWall)
+        {
+            spriteRenderer.sprite = wallSprites[wallSprites.Count - 1];
+        }
+
+        else if (rightWall)
+        {
+            spriteRenderer.sprite = wallSprites[1];
+        }
+
+        else if (upWall)
+        {
+            spriteRenderer.sprite = wallSprites[2];
+        }
+
+        else
+        {
+            spriteRenderer.sprite = wallSprites[0];
+        }
+    }
     SpriteRenderer spriteRenderer;
     public SpriteRenderer GetSpriteRenderer() { return spriteRenderer; }
 	private void Awake()
@@ -48,5 +87,41 @@ public class Vertex : MonoBehaviour
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		searchState = SearchState.UNVISITED;
 	}
+
+    private void Start()
+    {
+        RandomizeWalls();
+    }
+
+    public void RandomizeWalls()
+    {
+        while (!rightWall || !upWall)
+        {
+            int rightRandom = Random.Range(0, 2);
+            int upRandom = Random.Range(0, 2);
+
+            if (rightRandom == 0)
+            {
+                rightWall = false;
+            }
+
+            else
+            {
+                rightWall = true;
+            }
+
+            if (upRandom == 0)
+            {
+                upWall = false;
+            }
+            else
+            {
+                upWall = true;
+            }
+        }
+
+
+        SetWalls();
+    }
 
 }

@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Numerics;
 
 public class Maze : MonoBehaviour, IStateable
 {
@@ -35,7 +34,7 @@ public class Maze : MonoBehaviour, IStateable
     [SerializeField] float offset;
     [SerializeField] GameObject vertexPF;
     List<Vertex> mazeVertices = new List<Vertex>();
-   Vertex GetVertexAt(UnityEngine.Vector2 index)
+    Vertex GetVertexAt(UnityEngine.Vector2 index)
     {
         foreach(Vertex vertex in mazeVertices)
         {
@@ -45,33 +44,27 @@ public class Maze : MonoBehaviour, IStateable
         return null;
     }
 
-    Vector<bool> walls;
-
-    bool GetNorthWall(Vector2Int indexPosition)
+    bool GetRightWall(UnityEngine.Vector2 index)
     {
-        bool wall = false;
-        return walls[2 * (indexPosition.y * ((sideSize + 1) + indexPosition.x)) + 1];
+        foreach(var vertex in mazeVertices)
+        {
+            if (vertex.GetIndex() == index)
+                return vertex.GetRightWall();
+        }
+        return false;
     }
 
-	bool GetEastWall(Vector2Int indexPosition)
-	{
-		bool wall = false;
-		return walls[2 * ((indexPosition.y + 1) * (sideSize + 1) + indexPosition.x) + 1];
-	}
+    bool GetUpWall(UnityEngine.Vector2 index)
+    {
+        foreach (var vertex in mazeVertices)
+        {
+            if (vertex.GetIndex() == index)
+                return vertex.GetUpWall();
+        }
+        return false;
+    }
 
-	bool GetSouthWall(Vector2Int indexPosition)
-	{
-		bool wall = false;
-		return walls[2 * ((indexPosition.y + 1) * ((sideSize + 1) + indexPosition.x)) + 1];
-	}
-
-	bool GetWestWall(Vector2Int indexPosition)
-	{
-		bool wall = false;
-		return walls[2 * (indexPosition.y * ((sideSize + 1) + indexPosition.x))];
-	}
-
-	List<Vertex> searchVertices = new List<Vertex>();
+    List<Vertex> searchVertices = new List<Vertex>();
     Vertex searchHead;
 
     [SerializeField] float stepTimeSeconds;
@@ -108,12 +101,25 @@ public class Maze : MonoBehaviour, IStateable
         return neighbors;
     }
 
+    Vector2 GetDirectionOfNeighbor(Vertex origin, Vertex neighbor)
+    {
+        Vector2 direction = Vector2.zero;
+
+        float xDirection = neighbor.GetIndex().x - origin.GetIndex().x;
+        float yDirection = neighbor.GetIndex().y - origin.GetIndex().y;
+
+        direction = new Vector2(xDirection, yDirection);
+
+        return direction;
+    }
 
     private void Start()
     {
         GenerateMaze();
-
-	}
+        searchHead = GetVertexAt(new Vector2Int(0, 0));
+        searchHead.SetSearchState(SearchState.OPEN);
+        searchVertices.Add(GetVertexAt(new Vector2Int(0, 0)));
+    }
 
     private void Update()
     {
@@ -136,23 +142,23 @@ public class Maze : MonoBehaviour, IStateable
         {
             for(int j = 0; j < sideSize; j++)
             {
-                GenerateVertex(new UnityEngine.Vector2(i * offset, j * offset));
+                GenerateVertex(new Vector2(i * offset, j * offset));
             }
         }
 
         //Debug.Log($"Search Head:{searchHead}");
 	}
 
-    void GenerateVertex(UnityEngine.Vector2 position)
+    void GenerateVertex(UnityEngine.Vector2 index)
     {
-        GameObject newVertexObject = GameObject.Instantiate(vertexPF, new UnityEngine.Vector3(position.x, position.y, 0f), UnityEngine.Quaternion.identity);
+        GameObject newVertexObject = GameObject.Instantiate(vertexPF, new UnityEngine.Vector3(index.x, index.y, 0f), UnityEngine.Quaternion.identity);
 		//newVertexObject.name = "Vertex" + new Vector2Int((int)(position.x / offset), (int)(position.y / offset)).ToString();
-		newVertexObject.name = "Vertex" + new UnityEngine.Vector2((position.x / offset), (position.y / offset)).ToString();
+		newVertexObject.name = "Vertex" + new UnityEngine.Vector2((index.x / offset), (index.y / offset)).ToString();
 
 		newVertexObject.transform.parent = this.transform;
 
         Vertex newVertex = newVertexObject.GetComponent<Vertex>();
-        newVertex.SetIndex(new UnityEngine.Vector2((position.x / offset), (position.y / offset)));
+        newVertex.SetIndex(new UnityEngine.Vector2((index.x / offset), (index.y / offset)));
         //Debug.Log($"Setting index to:{newVertex.GetIndex()}");
 
         mazeVertices.Add(newVertex);
@@ -162,13 +168,13 @@ public class Maze : MonoBehaviour, IStateable
     {
 
         //If not initialized
-        if(searchHead == null)
+        if(!searchHead && searchVertices.Count == 0)
         {
-            //Debug.Log("Search head null");
-            searchHead = GetVertexAt(new Vector2Int(0, 0));
-            searchHead.SetSearchState(SearchState.OPEN);
-            searchVertices.Add(GetVertexAt(new Vector2Int(0, 0)));
+            return;
         }
+
+
+
 
         foreach(Vertex vertex in searchVertices)
         {
@@ -177,10 +183,6 @@ public class Maze : MonoBehaviour, IStateable
 
         searchHead.SetColor(Color.blue);
 		searchHead.SetSearchState(SearchState.VISITED);
-
-
-		///Debug.Log("Stepping");
-		//Get Stack -> Update Colors
 
 		//Move through stack
 
@@ -191,16 +193,65 @@ public class Maze : MonoBehaviour, IStateable
         if(neighbors.Count > 1)
         {
             int randomIndex = GetRandomNumber();
-            int choosenNeighborIndex = randomIndex % neighbors.Count;
+            int chosenNeighborIndex = randomIndex % neighbors.Count;
 
-            //Debug.Log("Multiple Neighbors");
-			searchVertices.Add(neighbors[choosenNeighborIndex]);
-			searchHead = neighbors[choosenNeighborIndex];
+            
+            if(GetDirectionOfNeighbor(searchHead, neighbors[chosenNeighborIndex]) == Vector2.up)
+            {
+                if (searchHead.GetUpWall())
+                    searchHead.SetUpWall(false);
+            }
+
+            if (GetDirectionOfNeighbor(searchHead, neighbors[chosenNeighborIndex]) == Vector2.right)
+            {
+                if (searchHead.GetRightWall())
+                    searchHead.SetRightWall(false);
+            }
+
+            if (GetDirectionOfNeighbor(searchHead, neighbors[chosenNeighborIndex]) == Vector2.down)
+            {
+                if (neighbors[chosenNeighborIndex].GetUpWall())
+                    neighbors[chosenNeighborIndex].SetUpWall(false);
+            }
+
+            if (GetDirectionOfNeighbor(searchHead, neighbors[chosenNeighborIndex]) == Vector2.left)
+            {
+                if (neighbors[chosenNeighborIndex].GetRightWall())
+                    neighbors[chosenNeighborIndex].SetRightWall(false);
+            }
+
+            searchVertices.Add(neighbors[chosenNeighborIndex]);
+			searchHead = neighbors[chosenNeighborIndex];
+
+            
 		}
 
         //One neighbor
         else if(neighbors.Count > 0) 
         {
+            if (GetDirectionOfNeighbor(searchHead, neighbors[0]) == Vector2.up)
+            {
+                if (searchHead.GetUpWall())
+                    searchHead.SetUpWall(false);
+            }
+
+            if (GetDirectionOfNeighbor(searchHead, neighbors[0]) == Vector2.right)
+            {
+                if (searchHead.GetRightWall())
+                    searchHead.SetRightWall(false);
+            }
+
+            if (GetDirectionOfNeighbor(searchHead, neighbors[0]) == Vector2.down)
+            {
+                if (neighbors[0].GetUpWall())
+                    neighbors[0].SetUpWall(false);
+            }
+
+            if (GetDirectionOfNeighbor(searchHead, neighbors[0]) == Vector2.left)
+            {
+                if (neighbors[0].GetRightWall())
+                    neighbors[0].SetRightWall(false);
+            }
             searchVertices.Add(neighbors[0]);
             searchHead = neighbors[0];
 		}

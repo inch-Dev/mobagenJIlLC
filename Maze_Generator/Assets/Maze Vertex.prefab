@@ -100,4 +100,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55760a009db0682489d1938afe219ef5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stateSprites: []
+  wallSprites:
+  - {fileID: -6860182242314626532, guid: 7e1a9d605b5e72c429330c4b1167e36f, type: 3}
+  - {fileID: 8806038741590667810, guid: 9f53e6468f33e944d855ada0bf07caee, type: 3}
+  - {fileID: 8738738189355534718, guid: fe034afa45346de43ac3a7160a3e6dbe, type: 3}
+  - {fileID: -1513702741789117601, guid: 4185bb6243892d7468c519bd097b1a1a, type: 3}
