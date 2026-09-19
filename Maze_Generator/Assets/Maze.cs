@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
+using UnityEngine.UI;
+using JetBrains.Annotations;
 
 public class Maze : MonoBehaviour, IStateable
 {
@@ -31,6 +34,16 @@ public class Maze : MonoBehaviour, IStateable
     }
     
     [SerializeField] int sideSize;
+    [SerializeField] TextMeshProUGUI sideSizeTF;
+    [SerializeField] Slider sideSizeSlider;
+    public void SetSideSize()
+    {
+        sideSize = (int)sideSizeSlider.value;
+        sideSizeTF.text = sideSize.ToString();
+        Reset();
+    }
+
+
     [SerializeField] float offset;
     [SerializeField] GameObject vertexPF;
     List<Vertex> mazeVertices = new List<Vertex>();
@@ -67,9 +80,6 @@ public class Maze : MonoBehaviour, IStateable
     List<Vertex> searchVertices = new List<Vertex>();
     Vertex searchHead;
 
-    [SerializeField] float stepTimeSeconds;
-    float stepTimeElapsed;
-
     bool canStep;
 
     List<Vertex> GetNeighbors(Vertex vertex)
@@ -77,11 +87,11 @@ public class Maze : MonoBehaviour, IStateable
         List<Vertex> neighbors = new List<Vertex>();
 
         //Search in directions
-        List<UnityEngine.Vector2> directions = new List<UnityEngine.Vector2>();
-        directions.Add(UnityEngine.Vector2.up);
-        directions.Add(UnityEngine.Vector2.right);
-        directions.Add(UnityEngine.Vector2.down);
-        directions.Add(UnityEngine.Vector2.left);
+        List<Vector2> directions = new List<Vector2>();
+        directions.Add(Vector2.up);
+        directions.Add(Vector2.right);
+        directions.Add(Vector2.down);
+        directions.Add(Vector2.left);
         
         //Search in clockwise order
         for(int i = 0; i < directions.Count; i++)
@@ -112,7 +122,55 @@ public class Maze : MonoBehaviour, IStateable
 
         return direction;
     }
+    float stepTimeSeconds = .5f;
+    [SerializeField] TextMeshProUGUI stepTimeSecondsTF;
+    [SerializeField] Slider stepTimeSecondsSlider;
+    public void SetStepTimeSeconds()
+    {
+        stepTimeSeconds = stepTimeSecondsSlider.value;
+        stepTimeSecondsTF.text = stepTimeSeconds.ToString("F2");
+    }
+    float nextStepInSeconds;
+    [SerializeField] TextMeshProUGUI nextStepInSecondsTF;
+    void SetNextStepInSeconds(float value)
+    {
+        nextStepInSeconds = value;
+        nextStepInSecondsTF.text = "Next Step In:" + nextStepInSeconds.ToString("F2");
+    }
 
+    float totalSeconds;
+    [SerializeField] TextMeshProUGUI totalSecondsTF;
+    void SetTotalSeconds(float value)
+    {
+        totalSeconds = value;
+        totalSecondsTF.text = totalSeconds.ToString("F2");
+    }
+
+
+    float deltaTime;
+    [SerializeField] TextMeshProUGUI deltaTimeTF;
+    void SetDeltaTime(float value)
+    {
+        deltaTime  = value;
+        deltaTimeTF.text = deltaTime.ToString("F2") + "ms";
+    }
+    float averageDeltaTime;
+    int updatesRan = 0;
+
+    [SerializeField] TextMeshProUGUI averageDeltaTimeTF;
+    void SetAverageDeltaTime(float value)
+    {
+        averageDeltaTime = value;
+        averageDeltaTimeTF.text = "AVG:" + averageDeltaTime.ToString("F2") + "ms";
+    }
+    float fps;
+    [SerializeField] TextMeshProUGUI fpsTF;
+    void SetFPS(float value)
+    {
+        fps = value;
+        fpsTF.text = fps.ToString("F2") + "FPS";
+    }
+   
     private void Start()
     {
         GenerateMaze();
@@ -123,15 +181,19 @@ public class Maze : MonoBehaviour, IStateable
 
     private void Update()
     {
+        updatesRan++;
         if (canStep)
         {
-            stepTimeElapsed += Time.deltaTime;
-            if (stepTimeElapsed > stepTimeSeconds)
+            SetNextStepInSeconds(nextStepInSeconds + Time.deltaTime);
+            if (nextStepInSeconds > stepTimeSeconds)
             {
-                stepTimeElapsed = 0;
+                SetNextStepInSeconds(0);
                 Step();
             }
         }
+        SetDeltaTime(Time.deltaTime);
+        SetAverageDeltaTime((averageDeltaTime + Time.deltaTime) / (float)updatesRan);
+        SetFPS(1/Time.deltaTime);
     }
 
 
@@ -145,21 +207,17 @@ public class Maze : MonoBehaviour, IStateable
                 GenerateVertex(new Vector2(i * offset, j * offset));
             }
         }
-
-        //Debug.Log($"Search Head:{searchHead}");
 	}
 
-    void GenerateVertex(UnityEngine.Vector2 index)
+    void GenerateVertex(Vector2 index)
     {
-        GameObject newVertexObject = GameObject.Instantiate(vertexPF, new UnityEngine.Vector3(index.x, index.y, 0f), UnityEngine.Quaternion.identity);
-		//newVertexObject.name = "Vertex" + new Vector2Int((int)(position.x / offset), (int)(position.y / offset)).ToString();
-		newVertexObject.name = "Vertex" + new UnityEngine.Vector2((index.x / offset), (index.y / offset)).ToString();
+        GameObject newVertexObject = GameObject.Instantiate(vertexPF, new Vector3(index.x, index.y, 0f), Quaternion.identity);
+		newVertexObject.name = "Vertex" + new Vector2((index.x / offset), (index.y / offset)).ToString();
 
 		newVertexObject.transform.parent = this.transform;
 
         Vertex newVertex = newVertexObject.GetComponent<Vertex>();
-        newVertex.SetIndex(new UnityEngine.Vector2((index.x / offset), (index.y / offset)));
-        //Debug.Log($"Setting index to:{newVertex.GetIndex()}");
+        newVertex.SetIndex(new Vector2((index.x / offset), (index.y / offset)));
 
         mazeVertices.Add(newVertex);
     }
@@ -168,7 +226,7 @@ public class Maze : MonoBehaviour, IStateable
     {
 
         //If not initialized
-        if(!searchHead && searchVertices.Count == 0)
+        if(!searchHead || searchVertices.Count <= 0)
         {
             return;
         }
@@ -268,4 +326,13 @@ public class Maze : MonoBehaviour, IStateable
             }
         }
 	}
+
+    public void Reset()
+    {
+        mazeVertices.Clear();
+
+        searchVertices.Clear();
+
+        GenerateMaze();
+    }
 }
