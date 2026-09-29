@@ -21,12 +21,17 @@ std::vector<Point2D> Agent::generatePath(CatWorld* w) {
 
   while (!frontier.empty()) {
     // get the current from frontier
+    //get the last element of the frontier
     // remove the current from frontierset
     // mark current as visited
+    // make last element of frontier visitable
     // getVisitableNeightbors(world, current) returns a vector of neighbors that are not visited, not cat, not block, not in the queue
+
     // iterate over the neighs:
     // for every neighbor set the cameFrom
+    // add every neighbor to cameFrom map
     // enqueue the neighbors to frontier and frontierset
+    // //add neighbors to frontier and frontierset
     // do this up to find a visitable border and break the loop
   }
 
