@@ -9,8 +9,6 @@ public class World : MonoBehaviour
     [HideInInspector] public static World instance;
     [SerializeField] int xSize;
     [SerializeField] int ySize;
-    [SerializeField] float xOffset;
-    [SerializeField] float yOffset;
     [SerializeField] GameObject pointPF;
     List<Point> _points;
     
@@ -57,12 +55,32 @@ public class World : MonoBehaviour
     {
         Vector3 spawnPos = Vector3.zero;
 
-        float horizontalOffset = 2 * Mathf.Sqrt(3) * 2;
-        horizontalOffset *= coordinates.x;
-        float verticalOffset = (3 / 4) * (3 / 2);
-        verticalOffset *= coordinates.y;
+        bool shouldOffset = false;
+        int column = (int)coordinates.x;
+        int row = (int)coordinates.y;
+        float width;
+        float height;
+        float xPos;
+        float yPos;
+        float horizontalDistance;
+        float verticalDistance;
+        float offset;
+        float size = .60f;
 
-        spawnPos = new Vector3(horizontalOffset, verticalOffset, 0);
+        shouldOffset = (row % 2) == 0;
+        width = Mathf.Sqrt(3) * size;
+        height = 2f * size;
+
+        horizontalDistance = width;
+        verticalDistance = height * (3f/4f);
+
+        offset = shouldOffset ? width / 2f : 0;
+
+        xPos = (column * (horizontalDistance)) + offset;
+        yPos = (row * verticalDistance);
+
+
+        spawnPos = new Vector3(xPos, yPos, 0);
 
         GameObject newPoint = GameObject.Instantiate(pointPF, spawnPos, Quaternion.identity);
         newPoint.transform.parent = this.transform;
