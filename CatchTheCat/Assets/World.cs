@@ -65,7 +65,7 @@ public class World : MonoBehaviour
         float horizontalDistance;
         float verticalDistance;
         float offset;
-        float size = .60f;
+        float size = .65f;
 
         shouldOffset = (row % 2) == 0;
         width = Mathf.Sqrt(3) * size;
