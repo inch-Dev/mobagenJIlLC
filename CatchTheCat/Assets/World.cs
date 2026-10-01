@@ -10,10 +10,11 @@ public class World : MonoBehaviour
     [SerializeField] int xSize;
     [SerializeField] int ySize;
     [SerializeField] GameObject pointPF;
-    List<Point> _points;
+    List<Point> _points = new List<Point>();
     
     public Point GetPointAt(Vector2 coordinates)
     {
+        Debug.Log($"Getting point at {coordinates}");
         foreach(var point in _points)
         {
             if (point.Coordinates == coordinates)
@@ -46,7 +47,7 @@ public class World : MonoBehaviour
         {
             for(int j = 0; j < ySize; j++)
             {
-                SpawnPoint(new Vector2((float)i, (float)j), 0);
+                SpawnPoint(new Vector2(i,j), 0); //Plug in distance
             }
         }
     }
@@ -88,6 +89,7 @@ public class World : MonoBehaviour
 
 
         Point thePoint = newPoint.GetComponent<Point>();
+        _points.Add(thePoint);
         thePoint.Coordinates = coordinates;
 
 

@@ -101,6 +101,8 @@ MonoBehaviour:
   Coordinates: {x: 0, y: 0}
   Type: 0
   Priority: 0
+  _fillSpriteRenderer: {fileID: 6629264524179463356}
+  _borderSpriteRenderer: {fileID: 7654825261964280782}
 --- !u!1 &7771237393770282169
 GameObject:
   m_ObjectHideFlags: 0

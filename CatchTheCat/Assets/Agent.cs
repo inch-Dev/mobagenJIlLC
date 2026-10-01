@@ -8,7 +8,9 @@ public class Agent : MonoBehaviour
     List<Point> _frontier;
     Point _frontierHead;
     List<Point> _reached;
+    Point _goal;
     Dictionary<Point, Point> _cameFromMap;
+    Dictionary<Point, float> _costSoFar;
 
     public List<Point> GetNeighbors(Point point)
     {
@@ -78,19 +80,27 @@ public class Agent : MonoBehaviour
     void Search()
     {
     //Change to do in steps
-        _frontierHead = GetLowestPriority(_frontier);
+        
 
 
         while(_frontier.Count > 0)
         {
-            foreach(var neighbor in GetNeighbors(_frontierHead))
+			_frontierHead = GetLowestPriority(_frontier);
+            if (_frontierHead == _goal)
+                break;
+
+			foreach (var neighbor in GetNeighbors(_frontierHead))
             {
-                if(_reached!.Contains(neighbor))
+                //New Cost
+                var newCost = _costSoFar[_frontierHead]; //+ cost from frontier head  to this neighbor (DISTANCE)
+                if(!_costSoFar.ContainsKey(neighbor) || newCost < _costSoFar[neighbor])
                 {
+                    _costSoFar[neighbor] = newCost;
+                    neighbor.Priority = newCost;
                     _frontier.Add(neighbor);
                     neighbor.Frontiered();
-                    _reached.Add(neighbor);
-                    neighbor.Reached();
+                    //_reached.Add(neighbor);
+                    //neighbor.Reached();
                     _cameFromMap[neighbor] = _frontierHead;
                 }
             }

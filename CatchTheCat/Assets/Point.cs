@@ -20,13 +20,10 @@ public class Point : MonoBehaviour
         Type = type;
         //Set colors later
     }
-    public int Priority; //Lower Priority better
+    public float Priority; //Lower Priority better //Distance from starting point
 
-    SpriteRenderer _spriteRenderer;
-    void Start()
-    {
-        _spriteRenderer = GetComponent<SpriteRenderer>(); 
-    }
+   [SerializeField] SpriteRenderer _fillSpriteRenderer;
+   [SerializeField] SpriteRenderer _borderSpriteRenderer;
 
     // Update is called once per frame
     void Update()
@@ -34,9 +31,20 @@ public class Point : MonoBehaviour
         
     }
 
+    public void Neighbored()
+    {
+        _borderSpriteRenderer.color = Color.green;
+    }
+
     public void Frontiered()
     {
+        _borderSpriteRenderer.color = Color.blue;
+    }
 
+    public void FrontierHead()
+    {
+        _borderSpriteRenderer.color = Color.blue;
+        _fillSpriteRenderer.color = Color.blue;
     }
 
     public void Reached()
