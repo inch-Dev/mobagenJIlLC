@@ -46,7 +46,7 @@ public class Agent : MonoBehaviour
 
         List<Vector2> neighborDirections = ((int)point.Coordinates.y & 1) == 0 ? evenDirections : oddDirections;
 
-        Debug.Log($"Neighor Directions is even:{neighborDirections == evenDirections}");
+        //Debug.Log($"Neighor Directions is even:{neighborDirections == evenDirections}");
 
         for(int i = 0; i < neighborDirections.Count; i++)
         {
@@ -93,9 +93,8 @@ public class Agent : MonoBehaviour
         return lowPoint;
     }
 
-
-    // Update is called once per frame
-    void Update()
+	// Update is called once per frame
+	void Update()
     {
         if (isActive)
         {
@@ -110,6 +109,8 @@ public class Agent : MonoBehaviour
 
     public void BootStrap()
     {
+        _goal = World.instance.GetPointAt(new Vector2(8, 8));
+        Debug.Log($"Goal:{_goal}");
         _frontier.Add(World.instance.GetPointAt(Vector2.zero));
         _cameFromMap.Add(World.instance.GetPointAt(Vector2.zero), World.instance.GetPointAt(Vector2.zero));
         _costSoFar.Add(World.instance.GetPointAt(Vector2.zero), World.instance.GetPointAt(Vector2.zero).Priority);
@@ -146,7 +147,10 @@ public class Agent : MonoBehaviour
 
 
         if (CheckForGoal(_frontierHead))
+        {
+            Debug.Log($"Found goal at {_frontierHead.Coordinates}");
             return;
+        }
         _frontier.Remove(_frontierHead);
         {
             _frontierHead.Reached();
@@ -161,11 +165,9 @@ public class Agent : MonoBehaviour
             Debug.Log($"Found neighbor of {_frontierHead}:{neighbor}");
             //New Cost
             
-            var newCost = _costSoFar[_frontierHead] + World.instance.GetCostOf(_frontierHead, neighbor); //+ cost from frontier head  to this neighbor (DISTANCE)
-            if (!_costSoFar.ContainsKey(neighbor) || newCost < _costSoFar[neighbor])
+            if (!_cameFromMap.ContainsKey(neighbor))
             {
-                _costSoFar[neighbor] = newCost;
-                neighbor.Priority = newCost;
+                neighbor.Priority = World.instance.GetCostOf(_goal, neighbor);
                 _frontier.Add(neighbor);
                 _cameFromMap.Add(neighbor, _frontierHead);
             }
@@ -181,6 +183,6 @@ public class Agent : MonoBehaviour
 
     bool CheckForGoal(Point point)
     {
-        return point == _goal;
+        return point.Coordinates == _goal.Coordinates;
     }
 }

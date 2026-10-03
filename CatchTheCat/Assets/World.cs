@@ -107,6 +107,8 @@ public class World : MonoBehaviour
                 thePoint.SetPointType(PointType.WALL);
                 break;
         }
+
+        thePoint.Priority = GetCostOf(GetPointAt(Vector2.zero), thePoint);
         
     }
 
