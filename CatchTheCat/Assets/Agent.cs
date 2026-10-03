@@ -1,28 +1,58 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Agent : MonoBehaviour
 {
+    bool isActive = false;
+    public void SetActive(int active)
+    {
+        isActive = active == 1 ? true : false;
+    }
+    float stepInterval = 1;
+    float stepElapsed = 0;
 
-    List<Point> _frontier;
+    List<Point> _frontier = new List<Point>();
     Point _frontierHead;
-    List<Point> _reached;
+    List<Point> _reached = new List<Point>();
     Point _goal;
-    Dictionary<Point, Point> _cameFromMap;
-    Dictionary<Point, float> _costSoFar;
+    Dictionary<Point, Point> _cameFromMap = new Dictionary<Point, Point>();
+    Dictionary<Point, float> _costSoFar = new Dictionary<Point, float>();
 
     public List<Point> GetNeighbors(Point point)
     {
+
+
+        //Use cube coordinates
         List<Point> neighbors = new List<Point>();
 
-        List<Vector2> directions = new List<Vector2>();
-        directions.Add(new Vector2(1, 1));
-        directions.Add(Vector2.right);
-        directions.Add(new Vector2(1, -1));
-        directions.Add(new Vector2(-1, -1));
-        directions.Add(Vector2.left);
-        directions.Add(new Vector2(-1, 1));
+        List<Vector2> evenDirections = new List<Vector2>();
+        evenDirections.Add(new Vector2(1, 0));
+        evenDirections.Add(new Vector2(-1, 0));
+        evenDirections.Add(new Vector2(1, 1));
+        evenDirections.Add(new Vector2(0, 1));
+        evenDirections.Add(new Vector2(1, -1));
+        evenDirections.Add(new Vector2(0, -1));
+
+        List<Vector2> oddDirections = new List<Vector2>();
+        oddDirections.Add(new Vector2(1, 0));
+        oddDirections.Add(new Vector2(-1, 0));
+        oddDirections.Add(new Vector2(0, 1));
+        oddDirections.Add(new Vector2(-1, 1));
+        oddDirections.Add(new Vector2(0, -1));
+        oddDirections.Add(new Vector2(-1, -1));
+
+
+        List<Vector2> neighborDirections = ((int)point.Coordinates.y & 1) == 0 ? evenDirections : oddDirections;
+
+        Debug.Log($"Neighor Directions is even:{neighborDirections == evenDirections}");
+
+        for(int i = 0; i < neighborDirections.Count; i++)
+        {
+            if(World.instance.GetPointAt(point.Coordinates + neighborDirections[i]))
+                neighbors.Add(World.instance.GetPointAt(point.Coordinates + neighborDirections[i]));
+        }
 
         return neighbors;
     }
@@ -67,44 +97,90 @@ public class Agent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (isActive)
+        {
+            stepElapsed += Time.deltaTime;
+            if (stepElapsed >= stepInterval)
+            {
+                stepElapsed = 0;
+                Step();
+            }
+        }
     }
 
     public void BootStrap()
     {
         _frontier.Add(World.instance.GetPointAt(Vector2.zero));
         _cameFromMap.Add(World.instance.GetPointAt(Vector2.zero), World.instance.GetPointAt(Vector2.zero));
-        Search();
+        _costSoFar.Add(World.instance.GetPointAt(Vector2.zero), World.instance.GetPointAt(Vector2.zero).Priority);
     }
 
     void Search()
     {
-    //Change to do in steps
-        
+        //Change to do in steps
 
 
-        while(_frontier.Count > 0)
+        while(_frontier.Count > 0 ) //Not done..goes infinite
         {
-			_frontierHead = GetLowestPriority(_frontier);
-            if (_frontierHead == _goal)
-                break;
-
-			foreach (var neighbor in GetNeighbors(_frontierHead))
-            {
-                //New Cost
-                var newCost = _costSoFar[_frontierHead]; //+ cost from frontier head  to this neighbor (DISTANCE)
-                if(!_costSoFar.ContainsKey(neighbor) || newCost < _costSoFar[neighbor])
-                {
-                    _costSoFar[neighbor] = newCost;
-                    neighbor.Priority = newCost;
-                    _frontier.Add(neighbor);
-                    neighbor.Frontiered();
-                    //_reached.Add(neighbor);
-                    //neighbor.Reached();
-                    _cameFromMap[neighbor] = _frontierHead;
-                }
-            }
+        
+            Step();
         }
 
+    }
+
+    void Step()
+    {
+
+        if (_frontier.Count <= 0)
+            return;
+        Debug.Log("Searching...");
+
+        foreach(var point in _frontier)
+        {
+            point.Frontiered();
+        }
+
+        
+        _frontierHead = GetLowestPriority(_frontier);
+        _frontierHead.FrontierHead();
+
+
+        if (CheckForGoal(_frontierHead))
+            return;
+        _frontier.Remove(_frontierHead);
+        {
+            _frontierHead.Reached();
+        }
+
+
+
+        List<Point> neighbors = GetNeighbors(_frontierHead);
+        foreach (var neighbor in neighbors)
+        {
+            neighbor.Neighbored();
+            Debug.Log($"Found neighbor of {_frontierHead}:{neighbor}");
+            //New Cost
+            
+            var newCost = _costSoFar[_frontierHead] + World.instance.GetCostOf(_frontierHead, neighbor); //+ cost from frontier head  to this neighbor (DISTANCE)
+            if (!_costSoFar.ContainsKey(neighbor) || newCost < _costSoFar[neighbor])
+            {
+                _costSoFar[neighbor] = newCost;
+                neighbor.Priority = newCost;
+                _frontier.Add(neighbor);
+                _cameFromMap.Add(neighbor, _frontierHead);
+            }
+            else
+            {
+                neighbor.Frontiered();
+            }
+            
+        }
+
+    }
+
+
+    bool CheckForGoal(Point point)
+    {
+        return point == _goal;
     }
 }

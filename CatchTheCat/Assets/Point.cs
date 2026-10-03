@@ -31,6 +31,8 @@ public class Point : MonoBehaviour
         
     }
 
+    
+
     public void Neighbored()
     {
         _borderSpriteRenderer.color = Color.green;
@@ -49,6 +51,7 @@ public class Point : MonoBehaviour
 
     public void Reached()
     {
-
-    }
+        _fillSpriteRenderer.color = Color.yellow;
+		_borderSpriteRenderer.color = Color.black;
+	}
 }

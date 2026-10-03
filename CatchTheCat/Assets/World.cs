@@ -14,7 +14,7 @@ public class World : MonoBehaviour
     
     public Point GetPointAt(Vector2 coordinates)
     {
-        Debug.Log($"Getting point at {coordinates}");
+        //Debug.Log($"Getting point at {coordinates}");
         foreach(var point in _points)
         {
             if (point.Coordinates == coordinates)
@@ -24,7 +24,10 @@ public class World : MonoBehaviour
         return null;
     }
 
-
+    public float GetCostOf(Point firstPoint, Point secondPoint)
+    {
+        return Mathf.Abs(secondPoint.Coordinates.x - firstPoint.Coordinates.x) + Mathf.Abs(secondPoint.Coordinates.y - firstPoint.Coordinates.y);
+    }
 
     // Start is called before the first frame update
     void Start()
