@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Agent : MonoBehaviour
@@ -10,15 +8,17 @@ public class Agent : MonoBehaviour
     {
         isActive = active == 1 ? true : false;
     }
-    float stepInterval = 1;
+    float stepInterval = .5f;
     float stepElapsed = 0;
 
     List<Point> _frontier = new List<Point>();
     Point _frontierHead;
     List<Point> _reached = new List<Point>();
+    Point _start;
     Point _goal;
     Dictionary<Point, Point> _cameFromMap = new Dictionary<Point, Point>();
     Dictionary<Point, float> _costSoFar = new Dictionary<Point, float>();
+    List<Point> _path = new List<Point>();
 
     public List<Point> GetNeighbors(Point point)
     {
@@ -109,7 +109,8 @@ public class Agent : MonoBehaviour
 
     public void BootStrap()
     {
-        _goal = World.instance.GetPointAt(new Vector2(8, 8));
+        _start = World.instance.GetPointAt(new Vector2(0, 0));
+        _goal = World.instance.GetPointAt(new Vector2(9, 9));
         Debug.Log($"Goal:{_goal}");
         _frontier.Add(World.instance.GetPointAt(Vector2.zero));
         _cameFromMap.Add(World.instance.GetPointAt(Vector2.zero), World.instance.GetPointAt(Vector2.zero));
@@ -118,10 +119,7 @@ public class Agent : MonoBehaviour
 
     void Search()
     {
-        //Change to do in steps
-
-
-        while(_frontier.Count > 0 ) //Not done..goes infinite
+        while(_frontier.Count > 0 )
         {
         
             Step();
@@ -134,7 +132,18 @@ public class Agent : MonoBehaviour
 
         if (_frontier.Count <= 0)
             return;
-        Debug.Log("Searching...");
+
+
+		if (_frontierHead != null && CheckForGoal(_frontierHead))
+		{
+			Debug.Log($"Found goal at {_frontierHead.Coordinates}");
+            _frontier.Clear();
+            CreatePath();
+
+
+			return;
+		}
+		Debug.Log("Searching...");
 
         foreach(var point in _frontier)
         {
@@ -146,11 +155,7 @@ public class Agent : MonoBehaviour
         _frontierHead.FrontierHead();
 
 
-        if (CheckForGoal(_frontierHead))
-        {
-            Debug.Log($"Found goal at {_frontierHead.Coordinates}");
-            return;
-        }
+        
         _frontier.Remove(_frontierHead);
         {
             _frontierHead.Reached();
@@ -161,15 +166,22 @@ public class Agent : MonoBehaviour
         List<Point> neighbors = GetNeighbors(_frontierHead);
         foreach (var neighbor in neighbors)
         {
+            if (neighbor.Type == PointType.WALL)
+            {
+                //Debug.Log("Found wall");
+                continue;
+            }
+            float newCost = _costSoFar[_frontierHead] + World.instance.GetCostOf(_frontierHead, neighbor);
             neighbor.Neighbored();
-            Debug.Log($"Found neighbor of {_frontierHead}:{neighbor}");
+            //Debug.Log($"Found neighbor of {_frontierHead}:{neighbor}");
             //New Cost
             
-            if (!_cameFromMap.ContainsKey(neighbor))
+            if (!_costSoFar.ContainsKey(neighbor) || newCost < _costSoFar[neighbor])
             {
-                neighbor.Priority = World.instance.GetCostOf(_goal, neighbor);
+                _costSoFar[neighbor] = newCost;
+                neighbor.Priority = newCost + World.instance.GetCostOf(_goal, neighbor); //Need heuristic
                 _frontier.Add(neighbor);
-                _cameFromMap.Add(neighbor, _frontierHead);
+                _cameFromMap[neighbor] = _frontierHead;
             }
             else
             {
@@ -180,6 +192,19 @@ public class Agent : MonoBehaviour
 
     }
 
+    void CreatePath()
+    {
+        Point currentPoint = _goal;
+
+        while(currentPoint != _start)
+        {
+            currentPoint.Pathed();
+            _path.Add(currentPoint);
+            currentPoint = _cameFromMap[currentPoint];
+        }
+        _path.Add(_start);
+        _start.Pathed();
+    }
 
     bool CheckForGoal(Point point)
     {

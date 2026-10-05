@@ -96,16 +96,21 @@ public class World : MonoBehaviour
         thePoint.Coordinates = coordinates;
 
 
-        int randomIndex = Random.Range(0, (int)PointType.NUM_TYPES);
+        int randomIndex = Random.Range(0, (int)PointType.NUM_TYPES  + 1);
 
         switch (randomIndex)
         {
             case 0:
-                thePoint.SetPointType(PointType.BLANK);
-                break;
-            case 1:
                 thePoint.SetPointType(PointType.WALL);
                 break;
+            default:
+                thePoint.SetPointType(PointType.BLANK);
+                break;
+        }
+
+        if(thePoint.Coordinates.x == xSize - 1 || thePoint.Coordinates.x == 0 || thePoint.Coordinates.y == ySize - 1 || thePoint.Coordinates.y == 0)
+        {
+            thePoint.SetPointType(PointType.BLANK);
         }
 
         thePoint.Priority = GetCostOf(GetPointAt(Vector2.zero), thePoint);

@@ -18,6 +18,17 @@ public class Point : MonoBehaviour
     public void SetPointType(PointType type)
     {
         Type = type;
+
+        switch (type)
+        {
+            case PointType.BLANK:
+                _fillSpriteRenderer.color = Color.white;
+                break;
+            case PointType.WALL:
+                _fillSpriteRenderer.color = Color.gray;
+                break;
+        }
+
         //Set colors later
     }
     public float Priority; //Lower Priority better //Distance from starting point
@@ -54,4 +65,10 @@ public class Point : MonoBehaviour
         _fillSpriteRenderer.color = Color.yellow;
 		_borderSpriteRenderer.color = Color.black;
 	}
+
+    public void Pathed()
+    {
+        _fillSpriteRenderer.color = Color.green;
+        _borderSpriteRenderer.color = Color.cyan;
+    }
 }
