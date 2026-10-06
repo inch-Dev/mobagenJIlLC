@@ -8,7 +8,9 @@ public class World : MonoBehaviour
 {
     [HideInInspector] public static World instance;
     [SerializeField] int xSize;
+    public int GetXSize(){  return xSize; }
     [SerializeField] int ySize;
+    public int GetYSize(){ return ySize; }
     [SerializeField] GameObject pointPF;
     List<Point> _points = new List<Point>();
     
@@ -26,6 +28,7 @@ public class World : MonoBehaviour
 
     public float GetCostOf(Point firstPoint, Point secondPoint)
     {
+        Debug.Log($"First Point:{firstPoint}, Second Point:{secondPoint}");
         return Mathf.Abs(secondPoint.Coordinates.x - firstPoint.Coordinates.x) + Mathf.Abs(secondPoint.Coordinates.y - firstPoint.Coordinates.y);
     }
 

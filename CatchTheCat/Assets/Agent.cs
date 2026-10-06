@@ -11,20 +11,37 @@ public class Agent : MonoBehaviour
     float stepInterval = .5f;
     float stepElapsed = 0;
 
-    List<Point> _frontier = new List<Point>();
-    Point _frontierHead;
-    List<Point> _reached = new List<Point>();
-    Point _start;
-    Point _goal;
-    Dictionary<Point, Point> _cameFromMap = new Dictionary<Point, Point>();
-    Dictionary<Point, float> _costSoFar = new Dictionary<Point, float>();
-    List<Point> _path = new List<Point>();
+    protected List<Point> _frontier = new List<Point>();
+    protected Point _frontierHead;
+    protected List<Point> _reached = new List<Point>();
+    protected Point _start;
+    protected Point _goal;
+    protected List<Point> _goals = new List<Point>();
+    public Point GetClosestGoal(Point point)
+    {
+        if (_goals.Count < +0)
+            return null;
+
+        Point closestGoal = _goals[0];
+        float lowestCost = World.instance.GetCostOf(point, _goals[0]);
+
+        for(int i = 0; i < _goals.Count; i++)
+        {
+            if (World.instance.GetCostOf(point, _goals[i]) < lowestCost)
+            {
+                lowestCost = World.instance.GetCostOf(point, _goals[i]);
+                closestGoal = _goals[i];
+            }
+        }
+
+        return closestGoal;
+    }
+    protected Dictionary<Point, Point> _cameFromMap = new Dictionary<Point, Point>();
+    protected Dictionary<Point, float> _costSoFar = new Dictionary<Point, float>();
+    protected List<Point> _path = new List<Point>();
 
     public List<Point> GetNeighbors(Point point)
     {
-
-
-        //Use cube coordinates
         List<Point> neighbors = new List<Point>();
 
         List<Vector2> evenDirections = new List<Vector2>();
@@ -94,7 +111,7 @@ public class Agent : MonoBehaviour
     }
 
 	// Update is called once per frame
-	void Update()
+	public virtual void Update()
     {
         if (isActive)
         {
@@ -107,11 +124,11 @@ public class Agent : MonoBehaviour
         }
     }
 
-    public void BootStrap()
+    public virtual void BootStrap()
     {
         _start = World.instance.GetPointAt(new Vector2(0, 0));
-        _goal = World.instance.GetPointAt(new Vector2(9, 9));
-        Debug.Log($"Goal:{_goal}");
+        _goals.Add(World.instance.GetPointAt(new Vector2(9, 9)));
+        //Debug.Log($"Goal:{_goal}");
         _frontier.Add(World.instance.GetPointAt(Vector2.zero));
         _cameFromMap.Add(World.instance.GetPointAt(Vector2.zero), World.instance.GetPointAt(Vector2.zero));
         _costSoFar.Add(World.instance.GetPointAt(Vector2.zero), World.instance.GetPointAt(Vector2.zero).Priority);
@@ -127,7 +144,7 @@ public class Agent : MonoBehaviour
 
     }
 
-    void Step()
+    public virtual void Step()
     {
 
         if (_frontier.Count <= 0)
@@ -136,6 +153,7 @@ public class Agent : MonoBehaviour
 
 		if (_frontierHead != null && CheckForGoal(_frontierHead))
 		{
+            _goal = _frontierHead;
 			Debug.Log($"Found goal at {_frontierHead.Coordinates}");
             _frontier.Clear();
             CreatePath();
@@ -171,6 +189,11 @@ public class Agent : MonoBehaviour
                 //Debug.Log("Found wall");
                 continue;
             }
+
+            if(neighbor == null)
+            {
+                Debug.Log("The neighbor is null!");
+            }
             float newCost = _costSoFar[_frontierHead] + World.instance.GetCostOf(_frontierHead, neighbor);
             neighbor.Neighbored();
             //Debug.Log($"Found neighbor of {_frontierHead}:{neighbor}");
@@ -179,7 +202,7 @@ public class Agent : MonoBehaviour
             if (!_costSoFar.ContainsKey(neighbor) || newCost < _costSoFar[neighbor])
             {
                 _costSoFar[neighbor] = newCost;
-                neighbor.Priority = newCost + World.instance.GetCostOf(_goal, neighbor); //Need heuristic
+                neighbor.Priority = newCost + World.instance.GetCostOf(GetClosestGoal(neighbor), neighbor); //Need heuristic
                 _frontier.Add(neighbor);
                 _cameFromMap[neighbor] = _frontierHead;
             }
@@ -192,7 +215,7 @@ public class Agent : MonoBehaviour
 
     }
 
-    void CreatePath()
+    public virtual void CreatePath()
     {
         Point currentPoint = _goal;
 
@@ -208,6 +231,13 @@ public class Agent : MonoBehaviour
 
     bool CheckForGoal(Point point)
     {
-        return point.Coordinates == _goal.Coordinates;
+        foreach(var goalPoint in _goals)
+        {
+            if (point.Coordinates == goalPoint.Coordinates)
+                return true;
+        }
+
+        return false;
+
     }
 }
