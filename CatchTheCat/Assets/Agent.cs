@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Agent : MonoBehaviour
 {
-    bool isActive = false;
+    protected bool isActive = false;
     public void SetActive(int active)
     {
         isActive = active == 1 ? true : false;
@@ -110,20 +110,6 @@ public class Agent : MonoBehaviour
         return lowPoint;
     }
 
-	// Update is called once per frame
-	public virtual void Update()
-    {
-        if (isActive)
-        {
-            stepElapsed += Time.deltaTime;
-            if (stepElapsed >= stepInterval)
-            {
-                stepElapsed = 0;
-                Step();
-            }
-        }
-    }
-
     public virtual void BootStrap()
     {
         _start = World.instance.GetPointAt(new Vector2(0, 0));
@@ -134,17 +120,13 @@ public class Agent : MonoBehaviour
         _costSoFar.Add(World.instance.GetPointAt(Vector2.zero), World.instance.GetPointAt(Vector2.zero).Priority);
     }
 
-    void Search()
+    public virtual void Step()
     {
-        while(_frontier.Count > 0 )
-        {
-        
-            Step();
-        }
+        Search();
 
     }
 
-    public virtual void Step()
+    public virtual void Search()
     {
 
         if (_frontier.Count <= 0)
@@ -227,9 +209,17 @@ public class Agent : MonoBehaviour
         }
         _path.Add(_start);
         _start.Pathed();
+
+        MoveAlongPath();
     }
 
-    bool CheckForGoal(Point point)
+    public virtual void MoveAlongPath()
+    {
+        //Get next point in path
+        //Set as start and construct new path
+    }
+
+    public bool CheckForGoal(Point point)
     {
         foreach(var goalPoint in _goals)
         {
