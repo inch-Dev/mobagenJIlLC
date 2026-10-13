@@ -13,6 +13,14 @@ public class World : MonoBehaviour
     public int GetYSize(){ return ySize; }
     [SerializeField] GameObject pointPF;
     List<Point> _points = new List<Point>();
+
+    public void ResetPoints()
+    {
+        foreach(var point in _points)
+        {
+            point.SetPointType(point.Type);
+        }
+    }
     
     public Point GetPointAt(Vector2 coordinates)
     {
@@ -28,7 +36,7 @@ public class World : MonoBehaviour
 
     public float GetCostOf(Point firstPoint, Point secondPoint)
     {
-        Debug.Log($"First Point:{firstPoint}, Second Point:{secondPoint}");
+        //Debug.Log($"First Point:{firstPoint}, Second Point:{secondPoint}");
         return Mathf.Abs(secondPoint.Coordinates.x - firstPoint.Coordinates.x) + Mathf.Abs(secondPoint.Coordinates.y - firstPoint.Coordinates.y);
     }
 
@@ -99,7 +107,7 @@ public class World : MonoBehaviour
         thePoint.Coordinates = coordinates;
 
 
-        int randomIndex = Random.Range(0, (int)PointType.NUM_TYPES  + 1);
+        int randomIndex = Random.Range(0, (int)PointType.NUM_TYPES  + 4);
 
         switch (randomIndex)
         {

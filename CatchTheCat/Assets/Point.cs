@@ -23,9 +23,11 @@ public class Point : MonoBehaviour
         {
             case PointType.BLANK:
                 _fillSpriteRenderer.color = Color.white;
+                _borderSpriteRenderer.color = Color.black;
                 break;
             case PointType.WALL:
                 _fillSpriteRenderer.color = Color.gray;
+                _borderSpriteRenderer.color = Color.black;
                 break;
         }
 

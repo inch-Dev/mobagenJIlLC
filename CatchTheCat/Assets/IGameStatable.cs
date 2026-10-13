@@ -6,10 +6,5 @@ public interface IGameStatable
 {
     public void HandleGameState()
     {
-        switch (GameManager.instance.GetGameState())
-        {
-        
-        }
-            
     }
 }

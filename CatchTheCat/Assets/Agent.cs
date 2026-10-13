@@ -1,22 +1,21 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Agent : MonoBehaviour
 {
-    protected bool isActive = false;
-    public void SetActive(int active)
-    {
-        isActive = active == 1 ? true : false;
-    }
-    float stepInterval = .5f;
-    float stepElapsed = 0;
-
+    protected bool wasSearched;
+    [SerializeField] protected bool isAgent;
+    public void SetIsAgent(bool shouldAgent){ isAgent = shouldAgent; }
     protected List<Point> _frontier = new List<Point>();
     protected Point _frontierHead;
     protected List<Point> _reached = new List<Point>();
     protected Point _start;
     protected Point _goal;
     protected List<Point> _goals = new List<Point>();
+
+    protected Point _position;
+    public Point GetPosition(){ return _position; }
     public Point GetClosestGoal(Point point)
     {
         if (_goals.Count < +0)
@@ -110,81 +109,91 @@ public class Agent : MonoBehaviour
         return lowPoint;
     }
 
+    public float Heuristic(Point point)
+    {
+        return Mathf.Min(World.instance.GetXSize() / 2 - Mathf.Abs(point.Coordinates.x), World.instance.GetYSize() / 2 - Mathf.Abs(point.Coordinates.y));
+    }
+
     public virtual void BootStrap()
     {
         _start = World.instance.GetPointAt(new Vector2(0, 0));
-        _goals.Add(World.instance.GetPointAt(new Vector2(9, 9)));
-        //Debug.Log($"Goal:{_goal}");
+
+        for (int i = 0; i < World.instance.GetXSize(); i++)
+        {
+            for (int j = 0; j < World.instance.GetYSize(); j++)
+            {
+                if (i == 0 || j == 0 || i == World.instance.GetXSize() - 1 || j == World.instance.GetYSize() - 1)
+                    _goals.Add(World.instance.GetPointAt(new Vector2(i, j)));
+            }
+        }
         _frontier.Add(World.instance.GetPointAt(Vector2.zero));
         _cameFromMap.Add(World.instance.GetPointAt(Vector2.zero), World.instance.GetPointAt(Vector2.zero));
         _costSoFar.Add(World.instance.GetPointAt(Vector2.zero), World.instance.GetPointAt(Vector2.zero).Priority);
     }
 
-    public virtual void Step()
-    {
-        Search();
-
-    }
-
     public virtual void Search()
     {
+		if (wasSearched)
+		{
+			_start = _position;
 
-        if (_frontier.Count <= 0)
-            return;
+			_frontier.Clear();
+			_frontierHead = null;
+			_cameFromMap.Clear();
+			_costSoFar.Clear();
+			_path.Clear();
+
+
+			_frontier.Add(_start);
+			_cameFromMap.Add(_start, _start);
+			_costSoFar.Add(_start, 0);
+
+		}
+		while (_frontier.Count > 0)
+        {
+            Step();
+        }
+            
+    }
+
+    public virtual void Step()
+    {
+                
+        _frontierHead = GetLowestPriority(_frontier);
+		_frontier.Remove(_frontierHead);
+		_frontierHead.FrontierHead();
+        _frontierHead.Reached();
 
 
 		if (_frontierHead != null && CheckForGoal(_frontierHead))
 		{
+            Debug.Log($"Found goal at:{_frontierHead}");
             _goal = _frontierHead;
-			Debug.Log($"Found goal at {_frontierHead.Coordinates}");
             _frontier.Clear();
             CreatePath();
-
-
 			return;
 		}
-		Debug.Log("Searching...");
 
         foreach(var point in _frontier)
         {
             point.Frontiered();
         }
 
-        
-        _frontierHead = GetLowestPriority(_frontier);
-        _frontierHead.FrontierHead();
-
-
-        
-        _frontier.Remove(_frontierHead);
-        {
-            _frontierHead.Reached();
-        }
-
-
-
         List<Point> neighbors = GetNeighbors(_frontierHead);
         foreach (var neighbor in neighbors)
         {
             if (neighbor.Type == PointType.WALL)
             {
-                //Debug.Log("Found wall");
                 continue;
             }
 
-            if(neighbor == null)
-            {
-                Debug.Log("The neighbor is null!");
-            }
             float newCost = _costSoFar[_frontierHead] + World.instance.GetCostOf(_frontierHead, neighbor);
             neighbor.Neighbored();
-            //Debug.Log($"Found neighbor of {_frontierHead}:{neighbor}");
-            //New Cost
-            
+
             if (!_costSoFar.ContainsKey(neighbor) || newCost < _costSoFar[neighbor])
             {
                 _costSoFar[neighbor] = newCost;
-                neighbor.Priority = newCost + World.instance.GetCostOf(GetClosestGoal(neighbor), neighbor); //Need heuristic
+                neighbor.Priority = newCost + Heuristic(neighbor);
                 _frontier.Add(neighbor);
                 _cameFromMap[neighbor] = _frontierHead;
             }
@@ -194,29 +203,48 @@ public class Agent : MonoBehaviour
             }
             
         }
+		if (_frontier.Count <= 0)
+		{
+			CreatePath();
+			return;
+		}
 
+		wasSearched = true;
     }
 
     public virtual void CreatePath()
     {
+        //Debug.Log("Creating path...");
         Point currentPoint = _goal;
+
+        //Debug.Log($"Goal:{currentPoint}. Start:{_start}");
 
         while(currentPoint != _start)
         {
+            if (_cameFromMap.Count <= 0)
+                break;
+
             currentPoint.Pathed();
-            _path.Add(currentPoint);
-            currentPoint = _cameFromMap[currentPoint];
+            
+            if (_cameFromMap.ContainsKey(currentPoint))
+            {
+				_path.Add(currentPoint);
+				currentPoint = _cameFromMap[currentPoint];
+            }
+            else
+            {
+                break;
+            }
         }
-        _path.Add(_start);
+        _path.Reverse();
         _start.Pathed();
 
-        MoveAlongPath();
+        Behavior();
     }
 
-    public virtual void MoveAlongPath()
+    public virtual void Behavior()
     {
-        //Get next point in path
-        //Set as start and construct new path
+        World.instance.ResetPoints();
     }
 
     public bool CheckForGoal(Point point)
@@ -226,8 +254,6 @@ public class Agent : MonoBehaviour
             if (point.Coordinates == goalPoint.Coordinates)
                 return true;
         }
-
         return false;
-
     }
 }
